@@ -1,21 +1,21 @@
-import * as services                    from '../services'
+import * as services                  from '../services'
 
-import { DynamicModule }                from '@nestjs/common'
-import { Module }                       from '@nestjs/common'
+import { DynamicModule }              from '@nestjs/common'
+import { Module }                     from '@nestjs/common'
 
-import { KOMUS_ADAPTER_MODULE_OPTIONS } from './komus-adapter-module.constants'
-import { KomusAdapterModuleOptions }    from './komus-adapter-module.options'
+import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
+import { KomusAdapterConfig }         from '../config'
 
 @Module({})
-export class SynchronizerSharedModule {
+export class KomusAdapterModule {
   static register(): DynamicModule {
     return {
       global: true,
-      module: SynchronizerSharedModule,
+      module: KomusAdapterModule,
       providers: [
         {
-          provide: KOMUS_ADAPTER_MODULE_OPTIONS,
-          useValue: KomusAdapterModuleOptions,
+          provide: KOMUS_ADAPTER_CONFIG_TOKEN,
+          useValue: KomusAdapterConfig,
         },
         ...Object.values(services),
       ],

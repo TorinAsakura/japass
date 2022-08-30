@@ -6,7 +6,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@synchronizer/domain-module": "workspace:0.0.1",
-    "@synchronizer/shared-module": "workspace:0.0.1"
+    "@synchronizer/request-shared-module": "workspace:0.0.1"
   },
   "devDependencies": {
     "@atls/logger": "^0.0.1",

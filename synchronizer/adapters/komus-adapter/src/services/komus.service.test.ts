@@ -1,32 +1,35 @@
-import { Test }                         from '@nestjs/testing'
+import { Test }                       from '@nestjs/testing'
 
-import { RequestService }               from '@synchronizer/shared-module'
+import { RequestService }             from '@synchronizer/request-shared-module'
 
-import { KOMUS_ADAPTER_MODULE_OPTIONS } from '../module'
-import { IKomusAdapterModuleOptions }   from '../module'
-import { KomusService }                 from './komus.service'
+import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
+import { IKomusAdapterConfig }        from '../config'
+import { KomusService }               from './komus.service'
 
 describe('synchronizer', () => {
   describe('komus-adapter', () => {
     describe('komus.service', () => {
       let komusService: KomusService
-      let komusOptions: IKomusAdapterModuleOptions
+      let komusOptions: IKomusAdapterConfig
       let requestService: RequestService
 
       beforeAll(async () => {
         const testingModule = await Test.createTestingModule({
           providers: [
             {
-              provide: KOMUS_ADAPTER_MODULE_OPTIONS,
+              provide: KOMUS_ADAPTER_CONFIG_TOKEN,
               useValue: {},
             },
-            RequestService,
+            {
+              provide: RequestService,
+              useValue: {},
+            },
             KomusService,
           ],
         }).compile()
 
         komusService = testingModule.get(KomusService)
-        komusOptions = testingModule.get(KOMUS_ADAPTER_MODULE_OPTIONS)
+        komusOptions = testingModule.get(KOMUS_ADAPTER_CONFIG_TOKEN)
         requestService = testingModule.get(RequestService)
       })
 
@@ -38,13 +41,13 @@ describe('synchronizer', () => {
         requestService.makeRequest = jest.fn().mockImplementation(() => {
           next -= 1
 
-          return jest.fn().mockResolvedValue({
-            json: jest.fn().mockResolvedValue({
+          return new Promise((resolve) => {
+            resolve({
               data: {
                 next,
                 content: [{}],
               },
-            }),
+            })
           })
         })
 

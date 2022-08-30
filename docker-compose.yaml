@@ -8,37 +8,17 @@ services:
       - ./:/workspace
     entrypoint: yarn
 
-  db:
-    image: bitnami/postgresql
-    environment:
-      - POSTGRESQL_PASSWORD=password
-      - POSTGRESQL_DATABASE=db
-      - POSTGRESQL_USER=postgres
-    ports:
-      - 5432:5432
-
   synchronizer:
     image: node:16
     working_dir: /workspace
     volumes:
       - ./:/workspace
-    entrypoint: yarn workspace @  synchronizer/service-entrypoint dev
+    entrypoint: yarn workspace @synchronizer/service-entrypoint dev
     networks:
       - default
     environment:
       - DB_HOST=db
-    depends_on:
-      - db
-    ports:
-      - 50051:50051
-
-  public-gateway:
-    image: node:16
-    working_dir: /workspace
-    volumes:
-      - ./:/workspace
-    entrypoint: yarn workspace @gateway/public-gateway-entrypoint dev
-    ports:
-      - 3000:3000
-    networks:
-      - default
+      - KOMUS_AUTHORIZATION_TOKEN=77e43c734d782a9fa1d91a5a9d825517e3a3f8fdeb72b9e8fa4ff3bb527421290a7aed4bb57d3ecd78df197ca41f20a954ba58b32b1e0555
+      - YANDEX_MARKET_AUTHORIZATION_TOKEN=670000015B7E57DB
+      - YANDEX_MARKET_CAMPAIGN_ID=11-22047513
+      - YANDEX_MARKET_CLIENT_ID=c2467f3db5194d70a1404d12764c3144

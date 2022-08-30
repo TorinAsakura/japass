@@ -1,22 +1,22 @@
-import { Injectable }                   from '@nestjs/common'
-import { Inject }                       from '@nestjs/common'
+import { Injectable }                 from '@nestjs/common'
+import { Inject }                     from '@nestjs/common'
 
-import assert                           from 'assert'
+import assert                         from 'assert'
 
-import { SupplierPort }                 from '@synchronizer/domain-module'
-import { SupplierProduct }              from '@synchronizer/domain-module'
-import { OperationStack }               from '@synchronizer/domain-module'
-import { RequestService }               from '@synchronizer/shared-module'
+import { SupplierPort }               from '@synchronizer/domain-module'
+import { SupplierProduct }            from '@synchronizer/domain-module'
+import { OperationStack }             from '@synchronizer/domain-module'
+import { RequestService }             from '@synchronizer/request-shared-module'
 
-import { TokenNotProvidedException }    from '../exceptions'
-import { KOMUS_ADAPTER_MODULE_OPTIONS } from '../module'
-import { IKomusAdapterModuleOptions }   from '../module'
+import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
+import { IKomusAdapterConfig }        from '../config'
+import { TokenNotProvidedException }  from '../exceptions'
 
 @Injectable()
 export class KomusService implements SupplierPort {
   constructor(
-    @Inject(KOMUS_ADAPTER_MODULE_OPTIONS)
-    private readonly komusConfig: IKomusAdapterModuleOptions,
+    @Inject(KOMUS_ADAPTER_CONFIG_TOKEN)
+    private readonly komusConfig: IKomusAdapterConfig,
     private readonly requestService: RequestService
   ) {}
 
