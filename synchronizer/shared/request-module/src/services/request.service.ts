@@ -24,9 +24,9 @@ export class RequestService {
           const json = await response.json()
           resolve(json)
         } catch (e) {
-          this.#logger.info(
-            `Failed request for url ${args[0]}, retrying in ${this.options.timeoutOnFailure}ms`
-          )
+          const response = await this.options.fetch(...args)
+          this.#logger.error(e)
+          this.#logger.error(await response.text())
           setTimeout(execute, this.options.timeoutOnFailure)
         }
       }

@@ -1,3 +1,4 @@
+import { Logger }                     from '@atls/logger'
 import { Injectable }                 from '@nestjs/common'
 import { Inject }                     from '@nestjs/common'
 
@@ -5,7 +6,6 @@ import assert                         from 'assert'
 
 import { SupplierPort }               from '@synchronizer/domain-module'
 import { SupplierProduct }            from '@synchronizer/domain-module'
-import { OperationStack }             from '@synchronizer/domain-module'
 import { RequestService }             from '@synchronizer/request-shared-module'
 
 import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
@@ -14,6 +14,8 @@ import { TokenNotProvidedException }  from '../exceptions'
 
 @Injectable()
 export class KomusService implements SupplierPort {
+  #logger: Logger = new Logger('KomusService')
+
   constructor(
     @Inject(KOMUS_ADAPTER_CONFIG_TOKEN)
     private readonly komusConfig: IKomusAdapterConfig,
@@ -32,39 +34,53 @@ export class KomusService implements SupplierPort {
     return `${this.komusConfig.url}${path}${stringifiedParams}`
   }
 
+  private async sleep(ms: number) {
+    this.#logger.info(`Sleeping for ${ms}ms`)
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
   async getAllProducts(): Promise<Array<SupplierProduct>> {
+    this.#logger.info('Called getAllProducts()')
+
     assert.ok(this.komusConfig.token, new TokenNotProvidedException())
 
     const fetchedProducts: Array<any> = []
     const fullProducts: Array<any> = []
-    const operationStack = new OperationStack()
 
     const fetchPage = async (page: number) => {
-      const requestUrl = this.buildUrl('/api/elements', { format: 'json', count: 250, page })
+      this.#logger.info(`Fetching page ${page}`)
+
+      const requestUrl = this.buildUrl('/api/elements', { format: 'json', count: 1, page })
       const response = await this.requestService.makeRequest(requestUrl)
 
-      fetchedProducts.push(...response.data.content)
+      fetchedProducts.push(...response.content)
 
-      if (response.data.next !== 0) operationStack.push(() => fetchPage(page + 1))
+      // if (typeof response.next === 'number') {
+      if (false) {
+        await fetchPage(response.next)
+      }
     }
 
-    operationStack.push(() => fetchPage(1))
-    await operationStack.waitForAll()
+    await fetchPage(350)
 
     for (const product of fetchedProducts) {
-      operationStack.push(async () => {
-        const requestUrl = this.buildUrl(`api/elements/${product.articlenumber}`, {
-          format: 'json',
-        })
-        const response = await this.requestService.makeRequest(requestUrl)
-        fullProducts.push(...response.data.content)
+      const requestUrl = this.buildUrl(`/api/elements/${product.artnumber}`, {
+        format: 'json',
       })
+
+      this.#logger.info(`Retrieving ${product.artnumber}`)
+      const response = await this.requestService.makeRequest(requestUrl)
+      this.#logger.info(`Retrieved ${product.artnumber}`)
+
+      fullProducts.push(...response.content)
     }
 
+    this.#logger.info('Finished getAllProducts()')
     return fullProducts.map((product) => ({
       id: product.id,
-      brand: product.brand,
+      brand: product.brand.name,
       articleNumber: product.artnumber,
+      country: product.countryName,
       name: product.name,
       price: product.price,
       remains: product.remains,
@@ -77,9 +93,9 @@ export class KomusService implements SupplierPort {
       volume: product.volume,
       packagingType: product.packagingType,
       tradeGroup: product.tradeGroup,
-      barcodes: product.barcodes.map((b) => b.value),
-      imagePreview: product.images,
-      images: product.listImages,
+      barcodes: (product.barcodes || []).map((b) => b.Value),
+      imagePreview: `${this.komusConfig.url}${product.images}`,
+      images: (product.listImages || []).map((image) => `${this.komusConfig.url}${product.images}`),
       UOM: product.Unit,
       nds: product.nds,
       code: product.code,

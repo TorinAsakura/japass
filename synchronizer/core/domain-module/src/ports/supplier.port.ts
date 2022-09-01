@@ -16,6 +16,7 @@ export interface SupplierProduct {
   model?: string
   UOM: string
   nds: number
+  country: string
   imagePreview: string
   images: Array<string>
   width: number

@@ -34,19 +34,19 @@ describe('synchronizer', () => {
       })
 
       it('should get all products', async () => {
-        let next = 5
+        let next: number | undefined = 1
+        let totalPages = 5
 
         komusOptions.token = 'token'
         komusOptions.url = 'url'
         requestService.makeRequest = jest.fn().mockImplementation(() => {
-          next -= 1
+          next! += 1
+          if (next === 5) next = undefined
 
           return new Promise((resolve) => {
             resolve({
-              data: {
-                next,
-                content: [{}],
-              },
+              next,
+              content: [{}],
             })
           })
         })

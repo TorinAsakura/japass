@@ -1,10 +1,11 @@
-import * as services                          from '../services'
-
 import { DynamicModule }                      from '@nestjs/common'
 import { Module }                             from '@nestjs/common'
 
+import { MARKETPLACE_SERVICE_TOKEN }          from '@synchronizer/domain-module'
+
 import { YANDEX_MARKET_ADAPTER_CONFIG_TOKEN } from '../config'
 import { YandexMarketAdapterConfig }          from '../config'
+import { YandexMarketService }                from '../services'
 
 @Module({})
 export class YandexMarketAdapterModule {
@@ -17,9 +18,17 @@ export class YandexMarketAdapterModule {
           provide: YANDEX_MARKET_ADAPTER_CONFIG_TOKEN,
           useValue: YandexMarketAdapterConfig,
         },
-        ...Object.values(services),
+        {
+          provide: MARKETPLACE_SERVICE_TOKEN,
+          useClass: YandexMarketService,
+        },
       ],
-      exports: [...Object.values(services)],
+      exports: [
+        {
+          provide: MARKETPLACE_SERVICE_TOKEN,
+          useClass: YandexMarketService,
+        },
+      ],
     }
   }
 }

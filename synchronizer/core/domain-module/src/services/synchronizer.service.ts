@@ -42,7 +42,9 @@ export class SynchronizerService implements OnApplicationBootstrap {
     for (const product of products) {
       const {
         name,
+        price,
         articleNumber,
+        country,
         description,
         brand,
         imagePreview,
@@ -64,6 +66,8 @@ export class SynchronizerService implements OnApplicationBootstrap {
         length: depth,
         previewImage: imagePreview,
         pictures: images,
+        price,
+        manufacturerCountries: [country],
         barcodes: barcodes || [],
         articleNumber,
         category: tradeGroup,

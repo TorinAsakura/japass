@@ -2,7 +2,8 @@ export interface MarketplaceProduct {
   name: string
   articleNumber: string
   category: string
-  manufacturer?: string
+  price: number
+  manufacturerCountries: Array<string>
   length: number
   width: number
   height: number

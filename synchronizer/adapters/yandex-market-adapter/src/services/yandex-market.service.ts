@@ -36,20 +36,22 @@ export class YandexMarketService implements MarketplacePort {
   }
 
   async createProducts(request: CreateProductsRequest): Promise<void> {
-    this.#logger.info('createProducts')
+    this.#logger.info('Called createProducts()')
 
     assert.ok(this.options.token, new TokenNotProvidedException())
     assert.ok(this.options.clientId, new ClientIdNotProvidedException())
     assert.ok(this.options.campaignId, new CampaignIdNotProvidedException())
 
     const products: Array<object> = []
+    const generateMarketSku = (art: number): number => 100000000000 + art
 
     for (const product of request.products) {
       products.push({
         offer: {
           name: product.name,
           category: product.category,
-          shopSku: product.articleNumber,
+          manufacturerCountries: product.manufacturerCountries,
+          shopSku: Number(product.articleNumber),
           weightDimensions: {
             width: product.width,
             height: product.height,
@@ -65,12 +67,14 @@ export class YandexMarketService implements MarketplacePort {
           quantumOfSupply: product.quantumOfSupply,
         },
         mapping: {
-          marketSku: product.articleNumber,
+          marketSku: generateMarketSku(Number(product.articleNumber)),
         },
       })
     }
 
-    await this.requestService.makeRequest(
+    this.#logger.info('Creating products')
+
+    const response = await this.requestService.makeRequest(
       this.buildUrl('/campaigns/{campaignId}/offer-mapping-entries/updates'),
       {
         method: 'POST',
@@ -80,5 +84,31 @@ export class YandexMarketService implements MarketplacePort {
         }),
       }
     )
+
+    this.#logger.info('Created products')
+    this.#logger.info(response)
+    this.#logger.info('Setting prices')
+
+    // TODO get market sku
+    const response2 = await this.requestService.makeRequest(
+      this.buildUrl('/campaigns/{campaignId}/offer-prices/updates'),
+      {
+        method: 'POST',
+        headers: this.buildHeaders(),
+        body: JSON.stringify({
+          offers: request.products.map((product) => ({
+            marketSku: generateMarketSku(Number(product.articleNumber)),
+            price: {
+              currencyId: 'RUR',
+              value: Number(product.price),
+            },
+          })),
+        }),
+      }
+    )
+
+    this.#logger.info('Setted prices')
+    this.#logger.info(response2)
+    this.#logger.info('Finished createProducts()')
   }
 }
