@@ -4,4 +4,5 @@ export interface IYandexMarketAdapterConfig {
   clientId: string
   clientSecret: string
   campaignId: string
+  warehouseId: string
 }

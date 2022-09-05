@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+
 import { Logger }                     from '@atls/logger'
 import { Injectable }                 from '@nestjs/common'
 import { Inject }                     from '@nestjs/common'
@@ -34,11 +36,6 @@ export class KomusService implements SupplierPort {
     return `${this.komusConfig.url}${path}${stringifiedParams}`
   }
 
-  private async sleep(ms: number) {
-    this.#logger.info(`Sleeping for ${ms}ms`)
-    return new Promise((resolve) => setTimeout(resolve, ms))
-  }
-
   async getAllProducts(): Promise<Array<SupplierProduct>> {
     this.#logger.info('Called getAllProducts()')
 
@@ -50,18 +47,17 @@ export class KomusService implements SupplierPort {
     const fetchPage = async (page: number) => {
       this.#logger.info(`Fetching page ${page}`)
 
-      const requestUrl = this.buildUrl('/api/elements', { format: 'json', count: 1, page })
+      const requestUrl = this.buildUrl('/api/elements', { format: 'json', count: 250, page })
       const response = await this.requestService.makeRequest(requestUrl)
 
       fetchedProducts.push(...response.content)
 
-      // if (typeof response.next === 'number') {
-      if (false) {
+      if (typeof response.next === 'number') {
         await fetchPage(response.next)
       }
     }
 
-    await fetchPage(350)
+    await fetchPage(1)
 
     for (const product of fetchedProducts) {
       const requestUrl = this.buildUrl(`/api/elements/${product.artnumber}`, {
@@ -78,7 +74,7 @@ export class KomusService implements SupplierPort {
     this.#logger.info('Finished getAllProducts()')
     return fullProducts.map((product) => ({
       id: product.id,
-      brand: product.brand.name,
+      brand: product.brand?.name,
       articleNumber: product.artnumber,
       country: product.countryName,
       name: product.name,

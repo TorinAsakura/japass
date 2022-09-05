@@ -74,7 +74,7 @@ export class SynchronizerService implements OnApplicationBootstrap {
         vendor: brand,
         vendorCode: articleNumber,
         description,
-        quantumOfSupply: remains,
+        remains,
       })
     }
 

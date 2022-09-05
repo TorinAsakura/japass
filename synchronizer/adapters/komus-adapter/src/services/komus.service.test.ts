@@ -35,7 +35,6 @@ describe('synchronizer', () => {
 
       it('should get all products', async () => {
         let next: number | undefined = 1
-        let totalPages = 5
 
         komusOptions.token = 'token'
         komusOptions.url = 'url'
@@ -53,7 +52,7 @@ describe('synchronizer', () => {
 
         await komusService.getAllProducts()
 
-        expect(requestService.makeRequest).toBeCalledTimes(5 * 2)
+        expect(requestService.makeRequest).toBeCalledTimes(4 * 2)
       })
     })
   })

@@ -14,7 +14,7 @@ export interface MarketplaceProduct {
   vendorCode: string
   barcodes: Array<string>
   description: string
-  quantumOfSupply: number
+  remains: number
 }
 
 export interface CreateProductsRequest {

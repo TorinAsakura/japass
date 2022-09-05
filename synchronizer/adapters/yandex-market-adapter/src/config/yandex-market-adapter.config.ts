@@ -6,4 +6,5 @@ export const YandexMarketAdapterConfig: IYandexMarketAdapterConfig = {
   clientId: process.env.YANDEX_MARKET_CLIENT_ID || '',
   clientSecret: process.env.YANDEX_MARKET_CLIENT_SECRET || '',
   campaignId: process.env.YANDEX_MARKET_CAMPAIGN_ID || '',
+  warehouseId: process.env.WAREHOUSE_ID || '',
 }

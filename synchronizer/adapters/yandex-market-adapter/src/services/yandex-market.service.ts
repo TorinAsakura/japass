@@ -43,7 +43,6 @@ export class YandexMarketService implements MarketplacePort {
     assert.ok(this.options.campaignId, new CampaignIdNotProvidedException())
 
     const products: Array<object> = []
-    const generateMarketSku = (art: number): number => 100000000000 + art
 
     for (const product of request.products) {
       products.push({
@@ -64,17 +63,12 @@ export class YandexMarketService implements MarketplacePort {
           vendorCode: product.vendorCode,
           barcodes: product.barcodes,
           description: product.description,
-          quantumOfSupply: product.quantumOfSupply,
-        },
-        mapping: {
-          marketSku: generateMarketSku(Number(product.articleNumber)),
         },
       })
     }
 
     this.#logger.info('Creating products')
-
-    const response = await this.requestService.makeRequest(
+    await this.requestService.makeRequest(
       this.buildUrl('/campaigns/{campaignId}/offer-mapping-entries/updates'),
       {
         method: 'POST',
@@ -84,20 +78,17 @@ export class YandexMarketService implements MarketplacePort {
         }),
       }
     )
-
     this.#logger.info('Created products')
-    this.#logger.info(response)
-    this.#logger.info('Setting prices')
 
-    // TODO get market sku
-    const response2 = await this.requestService.makeRequest(
+    this.#logger.info('Setting prices')
+    await this.requestService.makeRequest(
       this.buildUrl('/campaigns/{campaignId}/offer-prices/updates'),
       {
         method: 'POST',
         headers: this.buildHeaders(),
         body: JSON.stringify({
           offers: request.products.map((product) => ({
-            marketSku: generateMarketSku(Number(product.articleNumber)),
+            id: Number(product.articleNumber),
             price: {
               currencyId: 'RUR',
               value: Number(product.price),
@@ -106,9 +97,28 @@ export class YandexMarketService implements MarketplacePort {
         }),
       }
     )
-
     this.#logger.info('Setted prices')
-    this.#logger.info(response2)
+
+    this.#logger.info('Setting stocks')
+    await this.requestService.makeRequest(this.buildUrl('/campaigns/{campaignId}/offers/stocks'), {
+      method: 'PUT',
+      headers: this.buildHeaders(),
+      body: JSON.stringify({
+        skus: request.products.map((product) => ({
+          sku: Number(product.articleNumber),
+          warehouseId: this.options.warehouseId,
+          items: [
+            {
+              type: 'FIT',
+              count: product.remains,
+              updatedAt: new Date().toISOString(),
+            },
+          ],
+        })),
+      }),
+    })
+    this.#logger.info('Setted stocks')
+
     this.#logger.info('Finished createProducts()')
   }
 }

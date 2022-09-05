@@ -53,7 +53,6 @@ describe('synchronizer', () => {
               name: 'string',
               articleNumber: 'string',
               category: 'string',
-              manufacturer: 'string',
               length: 1,
               width: 1,
               height: 1,
@@ -64,12 +63,14 @@ describe('synchronizer', () => {
               vendorCode: 'string',
               barcodes: ['string'],
               description: 'string',
-              quantumOfSupply: 1,
+              remains: 1,
+              price: 1,
+              manufacturerCountries: ['string'],
             },
           ],
         })
 
-        expect(requestService.makeRequest).toBeCalledTimes(1)
+        expect(requestService.makeRequest).toBeCalledTimes(3)
       })
     })
   })

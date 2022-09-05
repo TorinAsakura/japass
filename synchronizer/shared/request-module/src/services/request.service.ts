@@ -13,21 +13,38 @@ export class RequestService {
 
   constructor(
     @Inject(SYNCHRONIZER_REQUEST_SHARED_CONFIG_TOKEN)
-    private readonly options: ISynchronizerRequestSharedConfig
+    private readonly config: ISynchronizerRequestSharedConfig
   ) {}
 
   async makeRequest(...args) {
     return new Promise<FetchResponse>((resolve) => {
       const execute = async () => {
         try {
-          const response = await this.options.fetch(...args)
-          const json = await response.json()
-          resolve(json)
+          // eslint-disable-next-line no-async-promise-executor
+          const response = await new Promise(async (r, reject) => {
+            const timeout = setTimeout(
+              () =>
+                // eslint-disable-next-line
+                reject(`Request timeout (${this.config.maxRequestTimeout}ms) exceeded`),
+              this.config.maxRequestTimeout
+            )
+            try {
+              const res = await this.config.fetch(...args)
+              const json = await res.json()
+              clearTimeout(timeout)
+              r(json)
+            } catch (e) {
+              reject(e)
+              clearTimeout(timeout)
+            }
+          })
+          resolve(response)
         } catch (e) {
-          const response = await this.options.fetch(...args)
           this.#logger.error(e)
-          this.#logger.error(await response.text())
-          setTimeout(execute, this.options.timeoutOnFailure)
+          this.#logger.info(
+            `Failed request for url ${args[0]}, retrying in ${this.config.timeoutOnFailure}`
+          )
+          setTimeout(execute, this.config.timeoutOnFailure)
         }
       }
 
