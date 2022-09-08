@@ -5,9 +5,13 @@ import { Injectable }                 from '@nestjs/common'
 import { Inject }                     from '@nestjs/common'
 
 import assert                         from 'assert'
+import { Observable }                 from 'rxjs'
+import { v4 as uuid }                 from 'uuid'
 
 import { SupplierPort }               from '@synchronizer/domain-module'
-import { SupplierProduct }            from '@synchronizer/domain-module'
+import { Product }                    from '@synchronizer/domain-module'
+import { PRODUCTS_REPOSITORY_TOKEN }  from '@synchronizer/domain-module'
+import { ProductsRepository }         from '@synchronizer/domain-module'
 import { RequestService }             from '@synchronizer/request-shared-module'
 
 import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
@@ -21,7 +25,9 @@ export class KomusService implements SupplierPort {
   constructor(
     @Inject(KOMUS_ADAPTER_CONFIG_TOKEN)
     private readonly komusConfig: IKomusAdapterConfig,
-    private readonly requestService: RequestService
+    private readonly requestService: RequestService,
+    @Inject(PRODUCTS_REPOSITORY_TOKEN)
+    private readonly productsRepository: ProductsRepository
   ) {}
 
   private buildUrl(path: string, requestParams = {}) {
@@ -36,65 +42,76 @@ export class KomusService implements SupplierPort {
     return `${this.komusConfig.url}${path}${stringifiedParams}`
   }
 
-  async getAllProducts(): Promise<Array<SupplierProduct>> {
+  private async transformProduct(product): Promise<Product> {
+    const aggregate = this.productsRepository.create()
+
+    await aggregate.create(
+      uuid(),
+      product.name,
+      Number(product.price),
+      Number(product.remains),
+      product.artnumber,
+      product.code,
+      product.description,
+      product.brand?.name,
+      product.Unit,
+      Number(product.nds),
+      product.countryName,
+      `${this.komusConfig.url}${product.images}`,
+      (product.listImages || []).map((image) => `${this.komusConfig.url}${product.images}`),
+      Number(product.width),
+      Number(product.height),
+      Number(product.depth),
+      Number(product.weight),
+      Number(product.volume),
+      (product.barcodes || []).map((b) => b.Value),
+      product.tradeGroup
+    )
+
+    return aggregate
+  }
+
+  async getDetailedProduct(articleNumber: string): Promise<Product> {
+    const requestUrl = this.buildUrl(`/api/elements/${articleNumber}`, {
+      format: 'json',
+    })
+
+    this.#logger.info(`Retrieving ${articleNumber}`)
+    const response = await this.requestService.makeRequest(requestUrl)
+    this.#logger.info(`Retrieved ${articleNumber}`)
+
+    return this.transformProduct(response.content[0])
+  }
+
+  getAllProducts(): Observable<Product> {
     this.#logger.info('Called getAllProducts()')
 
     assert.ok(this.komusConfig.token, new TokenNotProvidedException())
 
-    const fetchedProducts: Array<any> = []
-    const fullProducts: Array<any> = []
+    const $productsObservable = new Observable<Product>((subscriber) => {
+      const fetchPage = async (page: number) => {
+        this.#logger.info(`Fetching page ${page}`)
 
-    const fetchPage = async (page: number) => {
-      this.#logger.info(`Fetching page ${page}`)
+        const requestUrl = this.buildUrl('/api/elements', { format: 'json', count: 250, page })
+        const response = await this.requestService.makeRequest(requestUrl)
 
-      const requestUrl = this.buildUrl('/api/elements', { format: 'json', count: 250, page })
-      const response = await this.requestService.makeRequest(requestUrl)
+        for (const product of response.content) {
+          const detailedProduct = await this.getDetailedProduct(product.artnumber)
+          subscriber.next(detailedProduct)
+        }
 
-      fetchedProducts.push(...response.content)
-
-      if (typeof response.next === 'number') {
-        await fetchPage(response.next)
+        if (response.next && typeof response.next === 'number') {
+          await fetchPage(response.next)
+        } else {
+          subscriber.complete()
+        }
       }
-    }
 
-    await fetchPage(1)
-
-    for (const product of fetchedProducts) {
-      const requestUrl = this.buildUrl(`/api/elements/${product.artnumber}`, {
-        format: 'json',
-      })
-
-      this.#logger.info(`Retrieving ${product.artnumber}`)
-      const response = await this.requestService.makeRequest(requestUrl)
-      this.#logger.info(`Retrieved ${product.artnumber}`)
-
-      fullProducts.push(...response.content)
-    }
+      fetchPage(1)
+    })
 
     this.#logger.info('Finished getAllProducts()')
-    return fullProducts.map((product) => ({
-      id: product.id,
-      brand: product.brand?.name,
-      articleNumber: product.artnumber,
-      country: product.countryName,
-      name: product.name,
-      price: product.price,
-      remains: product.remains,
-      description: product.description,
-      attributes: product.Specifications,
-      width: product.width,
-      height: product.height,
-      weight: product.weight,
-      depth: product.depth,
-      volume: product.volume,
-      packagingType: product.packagingType,
-      tradeGroup: product.tradeGroup,
-      barcodes: (product.barcodes || []).map((b) => b.Value),
-      imagePreview: `${this.komusConfig.url}${product.images}`,
-      images: (product.listImages || []).map((image) => `${this.komusConfig.url}${product.images}`),
-      UOM: product.Unit,
-      nds: product.nds,
-      code: product.code,
-    }))
+
+    return $productsObservable
   }
 }

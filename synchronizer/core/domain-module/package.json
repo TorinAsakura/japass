@@ -14,7 +14,7 @@
     "@nestjs/cqrs": "^8.0.0",
     "@nestjs/testing": "^8.1.1",
     "@types/node": "^16.11.10",
-    "rxjs": "^7.4.0"
+    "rxjs": "7.4.0"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.4",

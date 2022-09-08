@@ -5,16 +5,17 @@
   "license": "BSD-3-Clause",
   "main": "src/index.ts",
   "dependencies": {
-    "@synchronizer/domain-module": "workspace:0.0.1",
-    "@synchronizer/request-shared-module": "workspace:0.0.1"
+    "rxjs": "7.4.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@atls/logger": "^0.0.1",
     "@nestjs/common": "^8.1.1",
     "@nestjs/core": "^8.1.1",
     "@nestjs/testing": "^8.1.1",
-    "@types/node": "^16.11.10",
-    "rxjs": "^7.4.0"
+    "@synchronizer/domain-module": "workspace:0.0.1",
+    "@synchronizer/request-shared-module": "workspace:0.0.1",
+    "@types/node": "^16.11.10"
   },
   "peerDependencies": {
     "@nestjs/common": "^8.0.4",
