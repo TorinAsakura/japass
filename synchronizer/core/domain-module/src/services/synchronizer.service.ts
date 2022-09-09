@@ -32,18 +32,34 @@ export class SynchronizerService {
 
   private async mapAllProducts(cb: (product: Product) => Promise<void> | void): Promise<void> {
     const iterate = async (page) => {
-      const result = await this.productsRepository.findAll(500, page)
+      const result = await this.productsRepository.findAll(250, page)
 
       for (const product of result.products) {
         await cb(product)
       }
 
       if (result.hasNextPage) {
-        iterate(page + 1)
+        await iterate(page + 1)
       }
     }
 
-    iterate(0)
+    await iterate(0)
+  }
+
+  private async mapAllProductBatches(
+    cb: (products: Array<Product>) => Promise<void> | void
+  ): Promise<void> {
+    const iterate = async (page) => {
+      const result = await this.productsRepository.findAll(50, page)
+
+      await cb(result.products)
+
+      if (result.hasNextPage) {
+        await iterate(page + 1)
+      }
+    }
+
+    await iterate(0)
   }
 
   async synchronizeProductsWithDb() {
@@ -67,28 +83,28 @@ export class SynchronizerService {
   async synchronizeProductsWithMarketplace() {
     this.#logger.info('Called synchronizeProductsWithMarketplace()')
 
-    await this.mapAllProducts(async (product) => {
-      const {
-        name,
-        price,
-        articleNumber,
-        country,
-        description,
-        brand,
-        imagePreview,
-        images,
-        weight,
-        width,
-        height,
-        depth,
-        barcodes,
-        remains,
-        category,
-      } = product
+    await this.mapAllProductBatches(async (products) => {
+      if (products.length > 0) {
+        this.#logger.info(`Trying to write ${products.length} products`)
 
-      await this.marketplaceService.createProducts({
-        products: [
-          {
+        await this.marketplaceService.createProducts({
+          products: products.map(({
+            name,
+            price,
+            articleNumber,
+            country,
+            description,
+            brand,
+            imagePreview,
+            images,
+            weight,
+            width,
+            height,
+            depth,
+            barcodes,
+            remains,
+            category,
+          }) => ({
             name,
             width,
             height,
@@ -105,9 +121,9 @@ export class SynchronizerService {
             vendorCode: articleNumber,
             description,
             remains,
-          },
-        ],
-      })
+          })),
+        })
+      }
 
       this.#logger.info('Finished synchronizeProductsWithMarketplace()')
     })

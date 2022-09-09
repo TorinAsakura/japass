@@ -40,7 +40,9 @@ export class RequestService {
           })
           resolve(response)
         } catch (e) {
+          const res = await this.config.fetch(...args)
           this.#logger.error(e)
+          this.#logger.info(await res.text())
           this.#logger.info(
             `Failed request for url ${args[0]}, retrying in ${this.config.timeoutOnFailure}`
           )

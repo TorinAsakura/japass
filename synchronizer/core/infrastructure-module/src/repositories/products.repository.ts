@@ -33,7 +33,10 @@ export class ProductsRepositoryImpl extends ProductsRepository {
     take: number,
     skip: number
   ): Promise<{ products: Array<Product>; hasNextPage: boolean }> {
-    const qb = await this.repository.createQueryBuilder('product').skip(skip).take(take)
+    const qb = await this.repository
+      .createQueryBuilder('product')
+      .skip(skip * take)
+      .take(take)
 
     const entities = await qb.getMany()
 

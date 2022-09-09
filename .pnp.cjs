@@ -4201,6 +4201,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/__virtual__/@synchronizer-application-module-virtual-8a3bd8ed86/1/synchronizer/core/application-module/",\
           "packageDependencies": [\
             ["@synchronizer/application-module", "virtual:a6c32677c1a5718f91566f29d5b7f358aaa26c291edecf553ed55fa3b71c5760528614b9a4ccdb08705393ef6f0f645d9b23489cd6be260e42890b225d08c02b#workspace:synchronizer/core/application-module"],\
+            ["@atls/logger", "npm:0.0.1"],\
             ["@nestjs/common", "virtual:a6c32677c1a5718f91566f29d5b7f358aaa26c291edecf553ed55fa3b71c5760528614b9a4ccdb08705393ef6f0f645d9b23489cd6be260e42890b225d08c02b#npm:8.4.7"],\
             ["@nestjs/core", "virtual:a6c32677c1a5718f91566f29d5b7f358aaa26c291edecf553ed55fa3b71c5760528614b9a4ccdb08705393ef6f0f645d9b23489cd6be260e42890b225d08c02b#npm:8.4.7"],\
             ["@nestjs/cqrs", "virtual:a6c32677c1a5718f91566f29d5b7f358aaa26c291edecf553ed55fa3b71c5760528614b9a4ccdb08705393ef6f0f645d9b23489cd6be260e42890b225d08c02b#npm:8.0.5"],\
@@ -4227,6 +4228,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./synchronizer/core/application-module/",\
           "packageDependencies": [\
             ["@synchronizer/application-module", "workspace:synchronizer/core/application-module"],\
+            ["@atls/logger", "npm:0.0.1"],\
             ["@nestjs/common", "virtual:4d6951262437b8cc9b4facaabefd2191a6c2d96efc27454c570a6b107f17fc57757fc3a1116781dd43d1cd3c0a19fc2a88b24a683cd779de3e4c4793eb35b6ec#npm:8.4.7"],\
             ["@nestjs/core", "virtual:4d6951262437b8cc9b4facaabefd2191a6c2d96efc27454c570a6b107f17fc57757fc3a1116781dd43d1cd3c0a19fc2a88b24a683cd779de3e4c4793eb35b6ec#npm:8.4.7"],\
             ["@nestjs/cqrs", "virtual:9c2b30da7cf0d2e3bf4ea0e640612830bcff03007fb961cf8c16b09f4e564bba804b17c4511e7f4966f235c7b76d90cb75bdc8ec0d6076e9a419841b8ee4e3a1#npm:8.0.5"],\

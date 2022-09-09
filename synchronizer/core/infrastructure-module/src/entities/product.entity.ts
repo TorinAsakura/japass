@@ -7,13 +7,13 @@ export class ProductEntity {
   @PrimaryColumn('uuid')
   id!: string
 
-  @Column()
+  @Column({ nullable: true })
   name!: string
 
-  @Column('float')
+  @Column('float', { nullable: true })
   price!: number
 
-  @Column()
+  @Column({ nullable: true })
   remains!: number
 
   @Column()

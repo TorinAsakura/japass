@@ -1,14 +1,10 @@
-import { AggregateRoot }                    from '@nestjs/cqrs'
+import { AggregateRoot }         from '@nestjs/cqrs'
 
-import assert                               from 'assert'
+import assert                    from 'assert'
 
-import { ProductCreated }                   from '../events'
-import { ProductUpdated }                   from '../events'
-import { IdEmptyValueException }            from '../exceptions'
-import { PriceEmptyValueException }         from '../exceptions'
-import { RemainsEmptyValueException }       from '../exceptions'
-import { ArticleNumberEmptyValueException } from '../exceptions'
-import { NameEmptyValueException }          from '../exceptions'
+import { ProductCreated }        from '../events'
+import { ProductUpdated }        from '../events'
+import { IdEmptyValueException } from '../exceptions'
 
 export interface ProductOptions {
   id: string
@@ -229,10 +225,6 @@ export class Product extends AggregateRoot {
     category: string
   ) {
     assert.ok(id, new IdEmptyValueException())
-    assert.ok(price, new PriceEmptyValueException())
-    assert.ok(remains, new RemainsEmptyValueException())
-    assert.ok(name, new NameEmptyValueException())
-    assert.ok(articleNumber, new ArticleNumberEmptyValueException())
 
     this.apply(
       new ProductCreated(
@@ -286,9 +278,6 @@ export class Product extends AggregateRoot {
   }
 
   async update(price: number, remains: number) {
-    assert.ok(price, new PriceEmptyValueException())
-    assert.ok(remains, new RemainsEmptyValueException())
-
     this.apply(new ProductUpdated(price, remains))
 
     return this

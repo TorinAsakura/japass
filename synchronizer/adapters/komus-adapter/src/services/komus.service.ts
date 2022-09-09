@@ -43,9 +43,16 @@ export class KomusService implements SupplierPort {
   }
 
   private async transformProduct(product): Promise<Product> {
-    const aggregate = this.productsRepository.create()
+    const existingProduct = await this.productsRepository.findByArticleNumber(product.artnumber)
 
-    await aggregate.create(
+    if (existingProduct) {
+      await existingProduct.update(Number(product.price), Number(product.remains))
+      return existingProduct
+    }
+
+    const newAggregate = this.productsRepository.create()
+
+    await newAggregate.create(
       uuid(),
       product.name,
       Number(product.price),
@@ -68,7 +75,7 @@ export class KomusService implements SupplierPort {
       product.tradeGroup
     )
 
-    return aggregate
+    return newAggregate
   }
 
   async getDetailedProduct(articleNumber: string): Promise<Product> {
