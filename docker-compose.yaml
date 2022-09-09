@@ -25,14 +25,10 @@ services:
     entrypoint: yarn workspace @synchronizer/service-entrypoint dev
     networks:
       - default
+    env_file:
+      - .env
     environment:
       - DB_HOST=db
-      - KOMUS_AUTHORIZATION_TOKEN=77e43c734d782a9fa1d91a5a9d825517e3a3f8fdeb72b9e8fa4ff3bb527421290a7aed4bb57d3ecd78df197ca41f20a954ba58b32b1e0555
-      - YANDEX_MARKET_AUTHORIZATION_TOKEN=y0_AgAAAABPSJ_rAAheogAAAADNu4DE0qiJYiHJQDW6p5QVSmKpmeYZfO4
-      - YANDEX_MARKET_CAMPAIGN_ID=22047513
-      - YANDEX_MARKET_CLIENT_ID=c2467f3db5194d70a1404d12764c3144
-      - YANDEX_MARKET_CLIENT_SECRET=e26da3e9405b418fbd8e23d0b57a898e
-      - WAREHOUSE_ID=80151
     depends_on:
       - db
 
@@ -46,11 +42,7 @@ services:
       - default
     environment:
       - DB_HOST=db
-      - KOMUS_AUTHORIZATION_TOKEN=77e43c734d782a9fa1d91a5a9d825517e3a3f8fdeb72b9e8fa4ff3bb527421290a7aed4bb57d3ecd78df197ca41f20a954ba58b32b1e0555
-      - YANDEX_MARKET_AUTHORIZATION_TOKEN=y0_AgAAAABPSJ_rAAheogAAAADNu4DE0qiJYiHJQDW6p5QVSmKpmeYZfO4
-      - YANDEX_MARKET_CAMPAIGN_ID=22047513
-      - YANDEX_MARKET_CLIENT_ID=c2467f3db5194d70a1404d12764c3144
-      - YANDEX_MARKET_CLIENT_SECRET=e26da3e9405b418fbd8e23d0b57a898e
-      - WAREHOUSE_ID=80151
+    env_file:
+      - .env
     depends_on:
       - db

@@ -139,8 +139,10 @@ export class SynchronizerService {
 
     $productsObservable.subscribe({
       next: async (product) => {
-        this.#logger.info(`Writing product ${product.articleNumber} to db`)
-        await this.productsRepository.save(product)
+        if (product.country) {
+          this.#logger.info(`Writing product ${product.articleNumber} to db`)
+          await this.productsRepository.save(product)
+        }
       },
       complete: () => {
         this.#logger.info('Completed writing all products')
