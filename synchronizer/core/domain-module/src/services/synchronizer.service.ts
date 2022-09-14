@@ -47,12 +47,12 @@ export class SynchronizerService {
   }
 
   private async mapAllProductBatches(
-    cb: (products: Array<Product>) => Promise<void> | void
+    cb: (products: Array<Product>, page: number) => Promise<void> | void
   ): Promise<void> {
     const iterate = async (page) => {
       const result = await this.productsRepository.findAll(50, page)
 
-      await cb(result.products)
+      await cb(result.products, page)
 
       if (result.hasNextPage) {
         await iterate(page + 1)
@@ -65,18 +65,42 @@ export class SynchronizerService {
   async synchronizeProductsWithDb() {
     this.#logger.info('Called synchronizeProductsWithDb()')
 
-    await this.mapAllProducts(async (product) => {
-      const retrievedProduct = await this.supplierService.getDetailedProduct(product.articleNumber)
+    let resolve: CallableFunction
+    const promise = new Promise<void>((_resolve) => {
+      resolve = _resolve
+    })
+    const $productsObservable = this.supplierService.getAllProducts({ detailed: false })
 
-      if (
-        product.remains !== retrievedProduct.remains ||
-        product.price !== retrievedProduct.price
-      ) {
-        await product.update(retrievedProduct.price, retrievedProduct.remains)
-        await this.productsRepository.save(product)
-      }
+    $productsObservable.subscribe({
+      next: async (product) => {
+        const retrievedProduct = await this.productsRepository.findByArticleNumber(
+          product.articleNumber
+        )
+
+        if (!retrievedProduct) {
+          return
+        }
+
+        this.#logger.info(`Synchronizing product ${product.articleNumber} with db`)
+
+        if (product.country) {
+          if (
+            product.remains !== retrievedProduct.remains ||
+            product.price !== retrievedProduct.price
+          ) {
+            this.#logger.info(`Updating product ${product.articleNumber}`)
+            await product.update(retrievedProduct.price, retrievedProduct.remains)
+            await this.productsRepository.save(product)
+          }
+        }
+      },
+      complete: () => {
+        this.#logger.info('Completed synchronizing all products')
+        resolve(undefined)
+      },
     })
 
+    await promise
     this.#logger.info('Finished synchronizeProductsWithDb()')
   }
 
@@ -135,7 +159,11 @@ export class SynchronizerService {
     this.#logger.info('Called writeProducts()')
     this.#isInProgress = true
 
-    const $productsObservable = this.supplierService.getAllProducts()
+    let resolve: CallableFunction
+    const promise = new Promise<void>((_resolve) => {
+      resolve = _resolve
+    })
+    const $productsObservable = this.supplierService.getAllProducts({ detailed: true })
 
     $productsObservable.subscribe({
       next: async (product) => {
@@ -147,9 +175,11 @@ export class SynchronizerService {
       complete: () => {
         this.#logger.info('Completed writing all products')
         this.#isInProgress = false
+        resolve(undefined)
       },
     })
 
+    await promise
     this.#logger.info('Finished writeProducts()')
   }
 }

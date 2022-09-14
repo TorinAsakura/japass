@@ -12,6 +12,7 @@ import { SupplierPort }               from '@synchronizer/domain-module'
 import { Product }                    from '@synchronizer/domain-module'
 import { PRODUCTS_REPOSITORY_TOKEN }  from '@synchronizer/domain-module'
 import { ProductsRepository }         from '@synchronizer/domain-module'
+import { GetAllProductsOptions }      from '@synchronizer/domain-module'
 import { RequestService }             from '@synchronizer/request-shared-module'
 
 import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
@@ -90,7 +91,7 @@ export class KomusService implements SupplierPort {
     return this.transformProduct(response.content[0])
   }
 
-  getAllProducts(): Observable<Product> {
+  getAllProducts(options?: GetAllProductsOptions): Observable<Product> {
     this.#logger.info('Called getAllProducts()')
 
     assert.ok(this.komusConfig.token, new TokenNotProvidedException())
@@ -103,8 +104,11 @@ export class KomusService implements SupplierPort {
         const response = await this.requestService.makeRequest(requestUrl)
 
         for (const product of response.content) {
-          const detailedProduct = await this.getDetailedProduct(product.artnumber)
-          subscriber.next(detailedProduct)
+          const productAggregate = await this.transformProduct(product)
+
+          if (options?.detailed)
+            subscriber.next(await this.getDetailedProduct(productAggregate.articleNumber))
+          else subscriber.next(productAggregate)
         }
 
         if (response.next && typeof response.next === 'number') {
@@ -114,7 +118,7 @@ export class KomusService implements SupplierPort {
         }
       }
 
-      fetchPage(1)
+      fetchPage(options?.startFrom || 1)
     })
 
     this.#logger.info('Finished getAllProducts()')
