@@ -1,22 +1,25 @@
 /* eslint-disable no-await-in-loop */
 
-import { Logger }                     from '@atls/logger'
-import { Injectable }                 from '@nestjs/common'
-import { Inject }                     from '@nestjs/common'
+import { Logger }                      from '@atls/logger'
+import { Injectable }                  from '@nestjs/common'
+import { Inject }                      from '@nestjs/common'
 
-import assert                         from 'assert'
-import { Observable }                 from 'rxjs'
-import { v4 as uuid }                 from 'uuid'
+import assert                          from 'assert'
+import { Observable }                  from 'rxjs'
+import { v4 as uuid }                  from 'uuid'
 
-import { SupplierPort }               from '@synchronizer/domain-module'
-import { Product }                    from '@synchronizer/domain-module'
-import { PRODUCTS_REPOSITORY_TOKEN }  from '@synchronizer/domain-module'
-import { ProductsRepository }         from '@synchronizer/domain-module'
-import { RequestService }             from '@synchronizer/request-shared-module'
+import { SupplierPort }                from '@synchronizer/domain-module'
+import { Product }                     from '@synchronizer/domain-module'
+import { PRODUCTS_REPOSITORY_TOKEN }   from '@synchronizer/domain-module'
+import { ProductsRepository }          from '@synchronizer/domain-module'
+import { OPERATIONS_REPOSITORY_TOKEN } from '@synchronizer/domain-module'
+import { OperationsRepository }        from '@synchronizer/domain-module'
+import { GetAllProductsOptions }       from '@synchronizer/domain-module'
+import { RequestService }              from '@synchronizer/request-shared-module'
 
-import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
-import { IKomusAdapterConfig }        from '../config'
-import { TokenNotProvidedException }  from '../exceptions'
+import { KOMUS_ADAPTER_CONFIG_TOKEN }  from '../config'
+import { IKomusAdapterConfig }         from '../config'
+import { TokenNotProvidedException }   from '../exceptions'
 
 @Injectable()
 export class KomusService implements SupplierPort {
@@ -27,7 +30,9 @@ export class KomusService implements SupplierPort {
     private readonly komusConfig: IKomusAdapterConfig,
     private readonly requestService: RequestService,
     @Inject(PRODUCTS_REPOSITORY_TOKEN)
-    private readonly productsRepository: ProductsRepository
+    private readonly productsRepository: ProductsRepository,
+    @Inject(OPERATIONS_REPOSITORY_TOKEN)
+    private readonly operationsRepository: OperationsRepository
   ) {}
 
   private buildUrl(path: string, requestParams = {}) {
@@ -90,7 +95,7 @@ export class KomusService implements SupplierPort {
     return this.transformProduct(response.content[0])
   }
 
-  getAllProducts(): Observable<Product> {
+  getAllProducts(options?: GetAllProductsOptions): Observable<Product> {
     this.#logger.info('Called getAllProducts()')
 
     assert.ok(this.komusConfig.token, new TokenNotProvidedException())
@@ -103,18 +108,26 @@ export class KomusService implements SupplierPort {
         const response = await this.requestService.makeRequest(requestUrl)
 
         for (const product of response.content) {
-          const detailedProduct = await this.getDetailedProduct(product.artnumber)
-          subscriber.next(detailedProduct)
+          const productAggregate = await this.transformProduct(product)
+
+          if (productAggregate.price >= 150 && productAggregate.remains) {
+            if (options?.detailed) {
+              subscriber.next(await this.getDetailedProduct(productAggregate.articleNumber))
+              const lastOperation = await this.operationsRepository.findLastCompleted()
+              await lastOperation!.update(Date.now(), page)
+              await this.operationsRepository.save(lastOperation!)
+            } else subscriber.next(productAggregate)
+          }
         }
 
         if (response.next && typeof response.next === 'number') {
-          await fetchPage(response.next)
+          fetchPage(response.next)
         } else {
           subscriber.complete()
         }
       }
 
-      fetchPage(1)
+      fetchPage(options?.startFrom || 1)
     })
 
     this.#logger.info('Finished getAllProducts()')
