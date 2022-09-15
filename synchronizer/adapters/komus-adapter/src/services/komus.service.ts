@@ -121,7 +121,7 @@ export class KomusService implements SupplierPort {
         }
 
         if (response.next && typeof response.next === 'number') {
-          await fetchPage(response.next)
+          fetchPage(response.next)
         } else {
           subscriber.complete()
         }
