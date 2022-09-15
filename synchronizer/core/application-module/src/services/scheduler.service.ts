@@ -11,16 +11,25 @@ export class SchedulerService implements OnApplicationBootstrap {
   constructor(private readonly synchronizerService: SynchronizerService) {}
 
   async onApplicationBootstrap() {
-    const synchronizeAllProducts = async () => {
-      this.#logger.info('Called synchronizeAllProducts()')
+    const synchronizeAllProductsWithDb = async () => {
+      this.#logger.info('Called synchronizeAllProductsWithDb()')
 
       await this.synchronizerService.synchronizeProductsWithDb()
-      await this.synchronizerService.synchronizeProductsWithMarketplace()
-      setTimeout(synchronizeAllProducts, 30000)
+      setTimeout(synchronizeAllProductsWithDb, 30000)
 
-      this.#logger.info('Finished synchronizeAllProducts()')
+      this.#logger.info('Finished synchronizeAllProductsWithDb()')
     }
 
-    synchronizeAllProducts()
+    const synchronizeAllProductsWithMarketplace = async () => {
+      this.#logger.info('Called synchronizeAllProductsWithMarketplace()')
+
+      await this.synchronizerService.synchronizeProductsWithMarketplace()
+      setTimeout(synchronizeAllProductsWithMarketplace, 90000)
+
+      this.#logger.info('Finished synchronizeAllProductsWithMarketplace()')
+    }
+
+    synchronizeAllProductsWithDb()
+    setTimeout(synchronizeAllProductsWithMarketplace, 90000)
   }
 }
