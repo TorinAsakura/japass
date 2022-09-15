@@ -17,6 +17,7 @@ import { ProductsRepository }                  from '../repositories'
 import { PRODUCTS_REPOSITORY_TOKEN }           from '../repositories'
 import { OPERATIONS_REPOSITORY_TOKEN }         from '../repositories'
 import { OperationsRepository }                from '../repositories'
+import { productPriceFormula }                 from '../formulas'
 
 @Injectable()
 export class SynchronizerService {
@@ -89,6 +90,8 @@ export class SynchronizerService {
         }
 
         this.#logger.info(`Synchronizing product ${product.articleNumber} with db`)
+
+        await product.update(productPriceFormula(product.price), product.remains)
 
         if (product.country) {
           if (
@@ -194,6 +197,9 @@ export class SynchronizerService {
       next: async (product) => {
         if (product.country) {
           this.#logger.info(`Writing product ${product.articleNumber} to db`)
+
+          await product.update(productPriceFormula(product.price), product.remains)
+
           await this.productsRepository.save(product)
         }
       },

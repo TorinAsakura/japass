@@ -25,6 +25,7 @@ services:
     entrypoint: yarn workspace @synchronizer/service-entrypoint dev
     networks:
       - default
+    restart: always
     env_file:
       - .env
     environment:
@@ -40,6 +41,7 @@ services:
     entrypoint: yarn workspace @synchronizer/write-all-products-job dev
     networks:
       - default
+    restart: always
     environment:
       - DB_HOST=db
     env_file:
