@@ -94,10 +94,13 @@ export class SynchronizerService {
         if (product.country) {
           if (
             product.remains !== retrievedProduct.remains ||
-            product.price !== retrievedProduct.price
+            product.price !== productPriceFormula(retrievedProduct.price)
           ) {
             this.#logger.info(`Updating product ${product.articleNumber}`)
-            await product.update(productPriceFormula(product.price), product.remains)
+            await product.update(
+              productPriceFormula(retrievedProduct.price),
+              retrievedProduct.remains
+            )
             await this.productsRepository.save(product)
           }
         }
