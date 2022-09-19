@@ -1,8 +1,8 @@
 import { Module }                          from '@nestjs/common'
 
 import { SynchronizerApplicationModule }   from '@synchronizer/application-module'
-import { CqrsAdapterModule }               from '@synchronizer/cqrs-adapter-module'
 import { SynchronizerDomainModule }        from '@synchronizer/domain-module'
+import { CqrsAdapterModule }               from '@synchronizer/cqrs-adapter-module'
 import { InfrastructureModule }            from '@synchronizer/infrastructure-module'
 import { KomusAdapterModule }              from '@synchronizer/komus-adapter-module'
 import { SynchronizerRequestSharedModule } from '@synchronizer/request-shared-module'
