@@ -16,6 +16,8 @@ import { SupplierPort }                        from '../ports'
 import { ProductsRepository }                  from '../repositories'
 import { PRODUCTS_REPOSITORY_TOKEN }           from '../repositories'
 import { OPERATIONS_REPOSITORY_TOKEN }         from '../repositories'
+import { REWRITE_ENFORCER_REPOSITORY_TOKEN }   from '../repositories'
+import { RewriteEnforcerRepository }           from '../repositories'
 import { OperationsRepository }                from '../repositories'
 import { productPriceFormula }                 from '../formulas'
 
@@ -25,6 +27,8 @@ export class SynchronizerService {
 
   #isInProgress: boolean = false
 
+  #rewriteEnforcerFlag: boolean = true
+
   constructor(
     @Inject(MARKETPLACE_SERVICE_TOKEN)
     private readonly marketplaceService: MarketplacePort,
@@ -33,7 +37,9 @@ export class SynchronizerService {
     @Inject(PRODUCTS_REPOSITORY_TOKEN)
     private readonly productsRepository: ProductsRepository,
     @Inject(OPERATIONS_REPOSITORY_TOKEN)
-    private readonly operationsRepository: OperationsRepository
+    private readonly operationsRepository: OperationsRepository,
+    @Inject(REWRITE_ENFORCER_REPOSITORY_TOKEN)
+    private readonly rewriteEnforcerRepository: RewriteEnforcerRepository
   ) {}
 
   private async mapAllProducts(
@@ -177,13 +183,40 @@ export class SynchronizerService {
 
     const lastOperation = await getLastOperation()
 
+    const getStartFrom = async (): Promise<number> => {
+      const rewriteEnforcer = await this.rewriteEnforcerRepository.findOne()
+
+      if (!rewriteEnforcer) {
+        const newRewriteEnforcer = this.rewriteEnforcerRepository.create()
+
+        await newRewriteEnforcer.create(uuid(), false)
+
+        if (newRewriteEnforcer.flag !== this.#rewriteEnforcerFlag) {
+          await newRewriteEnforcer.update(this.#rewriteEnforcerFlag)
+          await this.rewriteEnforcerRepository.save(newRewriteEnforcer)
+          return 0
+        }
+
+        await this.rewriteEnforcerRepository.save(newRewriteEnforcer)
+        return lastOperation.page
+      }
+
+      if (rewriteEnforcer.flag !== this.#rewriteEnforcerFlag) {
+        await rewriteEnforcer.update(this.#rewriteEnforcerFlag)
+        await this.rewriteEnforcerRepository.save(rewriteEnforcer)
+        return 0
+      }
+
+      return lastOperation.page
+    }
+
     let resolve: CallableFunction
     const promise = new Promise<void>((_resolve) => {
       resolve = _resolve
     })
     const $productsObservable = this.supplierService.getAllProducts({
       detailed: true,
-      startFrom: lastOperation.page,
+      startFrom: await getStartFrom(),
     })
 
     $productsObservable.subscribe({

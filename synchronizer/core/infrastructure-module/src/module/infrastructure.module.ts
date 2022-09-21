@@ -6,9 +6,11 @@ import { TypeOrmModule }                              from '@nestjs/typeorm'
 
 import { PRODUCTS_REPOSITORY_TOKEN }                  from '@synchronizer/domain-module'
 import { OPERATIONS_REPOSITORY_TOKEN }                from '@synchronizer/domain-module'
+import { REWRITE_ENFORCER_REPOSITORY_TOKEN }          from '@synchronizer/domain-module'
 
 import { ProductsRepositoryImpl }                     from '../repositories'
 import { OperationsRepositoryImpl }                   from '../repositories'
+import { RewriteEnforcerRepositoryImpl }              from '../repositories'
 import { SYNCHRONIZER_INFRASTRUCTURE_MODULE_OPTIONS } from './infrastructure-module.constants'
 import { SynchronizerTypeOrmOptions }                 from './infrastructure-module.interfaces'
 import { TypeOrmConfig }                              from './typeorm.config'
@@ -39,6 +41,10 @@ export class InfrastructureModule {
           provide: OPERATIONS_REPOSITORY_TOKEN,
           useClass: OperationsRepositoryImpl,
         },
+        {
+          provide: REWRITE_ENFORCER_REPOSITORY_TOKEN,
+          useClass: RewriteEnforcerRepositoryImpl,
+        },
       ],
       exports: [
         TypeOrmModule,
@@ -50,6 +56,10 @@ export class InfrastructureModule {
         {
           provide: OPERATIONS_REPOSITORY_TOKEN,
           useClass: OperationsRepositoryImpl,
+        },
+        {
+          provide: REWRITE_ENFORCER_REPOSITORY_TOKEN,
+          useClass: RewriteEnforcerRepositoryImpl,
         },
       ],
     }

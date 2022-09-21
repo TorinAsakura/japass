@@ -36,3 +36,9 @@ export class ValueEmptyValueException extends AssertionError {
     super({ ...options, message: options.message || `Required field 'value'` })
   }
 }
+
+export class FlagEmptyValueException extends AssertionError {
+  constructor(options: { message?: string | undefined } = {}) {
+    super({ ...options, message: options.message || `Required field 'flag'` })
+  }
+}
