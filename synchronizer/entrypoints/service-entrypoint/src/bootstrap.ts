@@ -1,5 +1,5 @@
-import { NestFactory }                         from '@nestjs/core'
 import { NestLogger }                          from '@atls/nestjs-logger'
+import { NestFactory }                         from '@nestjs/core'
 
 import { SynchronizerServiceEntrypointModule } from './synchronizer-service-entrypoint.module'
 
