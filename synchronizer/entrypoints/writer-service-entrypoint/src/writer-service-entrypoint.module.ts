@@ -17,7 +17,7 @@ import { YandexMarketAdapterModule }       from '@synchronizer/yandex-market-ada
     KomusAdapterModule.register(),
     SynchronizerRequestSharedModule.register(),
     SynchronizerDomainModule.register(),
-    SynchronizerApplicationModule.register({ job: Job.SYNCHRONIZER }),
+    SynchronizerApplicationModule.register({ job: Job.WRITER }),
   ],
 })
-export class SynchronizerServiceEntrypointModule {}
+export class WriterServiceEntrypointModule {}

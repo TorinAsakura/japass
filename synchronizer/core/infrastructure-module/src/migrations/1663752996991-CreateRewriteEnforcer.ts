@@ -1,6 +1,5 @@
-import { MigrationInterface }              from 'typeorm'
-
-import { QueryRunner } from 'typeorm'
+import { MigrationInterface } from 'typeorm'
+import { QueryRunner }        from 'typeorm'
 
 export class CreateRewriteEnforcer1663752996991 implements MigrationInterface {
   name = 'CreateRewriteEnforcer1663752996991'
