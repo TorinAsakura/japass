@@ -1,16 +1,25 @@
-import { Logger }                 from '@atls/logger'
-import { Injectable }             from '@nestjs/common'
-import { OnApplicationBootstrap } from '@nestjs/common'
+import { Logger }                                  from '@atls/logger'
+import { Injectable }                              from '@nestjs/common'
+import { Inject }                                  from '@nestjs/common'
+import { OnApplicationBootstrap }                  from '@nestjs/common'
 
-import { SynchronizerService }    from '@synchronizer/domain-module'
+import { SynchronizerService }                     from '@synchronizer/domain-module'
+
+import { SYNCHRONIZER_APPLICATION_MODULE_OPTIONS } from '../constants'
+import { Job }                                     from '../enums'
+import { SynchronizerApplicationModuleOptions }    from '../module'
 
 @Injectable()
 export class SchedulerService implements OnApplicationBootstrap {
   #logger: Logger = new Logger('SchedulerService')
 
-  constructor(private readonly synchronizerService: SynchronizerService) {}
+  constructor(
+    private readonly synchronizerService: SynchronizerService,
+    @Inject(SYNCHRONIZER_APPLICATION_MODULE_OPTIONS)
+    private readonly options: SynchronizerApplicationModuleOptions
+  ) {}
 
-  async onApplicationBootstrap() {
+  startSynchronizeAllProductsWithDb() {
     const synchronizeAllProductsWithDb = async () => {
       this.#logger.info('Called synchronizeAllProductsWithDb()')
 
@@ -20,6 +29,10 @@ export class SchedulerService implements OnApplicationBootstrap {
       this.#logger.info('Finished synchronizeAllProductsWithDb()')
     }
 
+    synchronizeAllProductsWithDb()
+  }
+
+  startSynchronizeAllProductsWithMarketplace() {
     const synchronizeAllProductsWithMarketplace = async () => {
       this.#logger.info('Called synchronizeAllProductsWithMarketplace()')
 
@@ -29,7 +42,14 @@ export class SchedulerService implements OnApplicationBootstrap {
       this.#logger.info('Finished synchronizeAllProductsWithMarketplace()')
     }
 
-    synchronizeAllProductsWithDb()
-    setTimeout(synchronizeAllProductsWithMarketplace, 90000)
+    synchronizeAllProductsWithMarketplace()
+  }
+
+  async onApplicationBootstrap() {
+    if (this.options.job === Job.WRITER) {
+      this.startSynchronizeAllProductsWithMarketplace()
+    } else if (this.options.job === Job.SYNCHRONIZER) {
+      this.startSynchronizeAllProductsWithDb()
+    }
   }
 }

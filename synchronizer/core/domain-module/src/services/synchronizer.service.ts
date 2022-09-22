@@ -27,7 +27,7 @@ export class SynchronizerService {
 
   #isInProgress: boolean = false
 
-  #rewriteEnforcerFlag: boolean = true
+  #rewriteEnforcerFlag: boolean = false
 
   constructor(
     @Inject(MARKETPLACE_SERVICE_TOKEN)
