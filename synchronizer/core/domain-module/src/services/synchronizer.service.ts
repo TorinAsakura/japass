@@ -27,7 +27,7 @@ export class SynchronizerService {
 
   #isInProgress: boolean = false
 
-  #rewriteEnforcerFlag: boolean = false
+  #rewriteEnforcerFlag: boolean = true
 
   constructor(
     @Inject(MARKETPLACE_SERVICE_TOKEN)
@@ -194,6 +194,7 @@ export class SynchronizerService {
         if (newRewriteEnforcer.flag !== this.#rewriteEnforcerFlag) {
           await newRewriteEnforcer.update(this.#rewriteEnforcerFlag)
           await this.rewriteEnforcerRepository.save(newRewriteEnforcer)
+          this.#logger.info('Writing products from scratch')
           return 0
         }
 
@@ -204,6 +205,7 @@ export class SynchronizerService {
       if (rewriteEnforcer.flag !== this.#rewriteEnforcerFlag) {
         await rewriteEnforcer.update(this.#rewriteEnforcerFlag)
         await this.rewriteEnforcerRepository.save(rewriteEnforcer)
+        this.#logger.info('Writing products from scratch')
         return 0
       }
 
@@ -215,19 +217,17 @@ export class SynchronizerService {
       resolve = _resolve
     })
     const $productsObservable = this.supplierService.getAllProducts({
-      detailed: true,
+      detailed: false,
       startFrom: await getStartFrom(),
     })
 
     $productsObservable.subscribe({
       next: async (product) => {
-        if (product.country) {
-          this.#logger.info(`Writing product ${product.articleNumber} to db`)
+        this.#logger.info(`Writing product ${product.articleNumber} to db`)
 
-          await product.update(productPriceFormula(product.price), product.remains)
+        await product.update(productPriceFormula(product.price), product.remains)
 
-          await this.productsRepository.save(product)
-        }
+        await this.productsRepository.save(product)
       },
       complete: () => {
         this.#logger.info('Completed writing all products')
