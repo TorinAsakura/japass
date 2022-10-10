@@ -33,22 +33,6 @@ services:
     depends_on:
       - db
 
-  writer:
-    image: node:16
-    working_dir: /workspace
-    volumes:
-      - ./:/workspace
-    entrypoint: yarn workspace @synchronizer/writer-service-entrypoint dev
-    networks:
-      - default
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - DB_HOST=db
-    depends_on:
-      - db
-
   write-all-products-job:
     image: node:16
     working_dir: /workspace

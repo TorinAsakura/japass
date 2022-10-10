@@ -5,6 +5,7 @@ import { Injectable }                          from '@nestjs/common'
 import { Inject }                              from '@nestjs/common'
 
 import assert                                  from 'assert'
+import pLimit                                  from 'p-limit'
 import { v4 as uuid }                          from 'uuid'
 
 import { Product }                             from '../aggregates'
@@ -19,7 +20,9 @@ import { OPERATIONS_REPOSITORY_TOKEN }         from '../repositories'
 import { REWRITE_ENFORCER_REPOSITORY_TOKEN }   from '../repositories'
 import { RewriteEnforcerRepository }           from '../repositories'
 import { OperationsRepository }                from '../repositories'
-import { productPriceFormula }                 from '../formulas'
+import { applyProductPriceFormula }            from '../formulas'
+import { applyMinPriceFormula }                from '../formulas'
+import { applyMinOrderFormula }                from '../formulas'
 
 @Injectable()
 export class SynchronizerService {
@@ -99,7 +102,7 @@ export class SynchronizerService {
 
         if (product.country) {
           this.#logger.info(`Updating product ${product.articleNumber}`)
-          await retrievedProduct.update(productPriceFormula(product.price), product.remains)
+          await retrievedProduct.update(applyProductPriceFormula(product.price), product.remains)
           await this.productsRepository.save(retrievedProduct)
         }
       },
@@ -116,49 +119,100 @@ export class SynchronizerService {
   async synchronizeProductsWithMarketplace() {
     this.#logger.info('Called synchronizeProductsWithMarketplace()')
 
-    await this.mapAllProductBatches(async (products) => {
-      if (products.length > 0) {
-        this.#logger.info(`Trying to write ${products.length} products`)
+    const $productsObservable = await this.marketplaceService.getProducts()
 
-        await this.marketplaceService.createProducts({
-          products: products.map(({
-            name,
-            price,
-            articleNumber,
-            country,
-            description,
-            brand,
-            imagePreview,
-            images,
-            weight,
-            width,
-            height,
-            depth,
-            barcodes,
-            remains,
-            category,
-          }) => ({
-            name,
-            width,
-            height,
-            weight,
-            length: depth,
-            previewImage: imagePreview,
-            pictures: images,
-            price,
-            manufacturerCountries: [country],
-            barcodes: barcodes || [],
-            articleNumber,
-            category,
-            vendor: brand,
-            vendorCode: articleNumber,
-            description,
-            remains,
-          })),
+    $productsObservable.subscribe({
+      next: async (products) => {
+        const limit = pLimit(1)
+
+        await Promise.all(
+          products.map((product) =>
+            limit(async () => {
+              const prettyShopSku = (rawSku: string): string => {
+                const parts = rawSku.split('-')
+                if (parts.length > 1) {
+                  return parts.pop() || ''
+                }
+
+                return rawSku
+              }
+
+              const prettifiedSku = prettyShopSku(product.articleNumber)
+              const dbProduct = await this.productsRepository.findByArticleNumber(prettifiedSku)
+
+              if (!dbProduct) return
+
+              if (dbProduct.remains < 10) {
+                await this.marketplaceService.updateStocks({
+                  products: [{ articleNumber: dbProduct.articleNumber, remains: 0 }],
+                })
+
+                return
+              }
+
+              if (dbProduct.price < 150) {
+                const minOrder = applyMinOrderFormula(dbProduct.price)
+                const minPrice = applyMinPriceFormula(minOrder, dbProduct.price)
+                const priceWithExtraCharge = applyProductPriceFormula(minPrice)
+
+                if (priceWithExtraCharge !== product.price) {
+                  await this.marketplaceService.createProducts({
+                    products: [
+                      {
+                        ...product,
+                        name: `${product.name} (${minOrder} шт.)`,
+                      },
+                    ],
+                  })
+
+                  await this.marketplaceService.updatePrices({
+                    products: [
+                      {
+                        articleNumber: product.articleNumber,
+                        price: priceWithExtraCharge,
+                      },
+                    ],
+                  })
+                }
+              } else if (applyProductPriceFormula(dbProduct.price) !== product.price) {
+                await this.marketplaceService.updatePrices({
+                  products: [
+                    {
+                      articleNumber: product.articleNumber,
+                      price: applyProductPriceFormula(dbProduct.price),
+                    },
+                  ],
+                })
+              }
+
+              if (product.remains !== dbProduct.remains) {
+                await this.marketplaceService.updateStocks({
+                  products: [{ articleNumber: product.articleNumber, remains: dbProduct.remains }],
+                })
+              }
+            }))
+        )
+      },
+      complete: () => {
+        this.#logger.info('Finished synchronizeProductsWithMarketplace()')
+      },
+    })
+  }
+
+  async synchronizeStocksWithMarketplace() {
+    this.#logger.info('Called synchronizeStocksWithMarketplace()')
+
+    const $productsObservable = await this.marketplaceService.getProducts()
+
+    $productsObservable.subscribe({
+      next: (products) => {
+        this.marketplaceService.updateStocks({
+          products,
         })
-      }
-
-      this.#logger.info('Finished synchronizeProductsWithMarketplace()')
+      },
+      complete: () => {
+        this.#logger.info('Finished synchronizeStocksWithMarketplace()')
+      },
     })
   }
 
@@ -223,9 +277,7 @@ export class SynchronizerService {
 
     $productsObservable.subscribe({
       next: async (product) => {
-        this.#logger.info(`Writing product ${product.articleNumber} to db`)
-
-        await product.update(productPriceFormula(product.price), product.remains)
+        await product.update(applyProductPriceFormula(product.price), product.remains)
 
         await this.productsRepository.save(product)
       },

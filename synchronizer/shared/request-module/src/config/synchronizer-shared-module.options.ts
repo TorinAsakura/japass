@@ -4,6 +4,6 @@ import { ISynchronizerRequestSharedConfig } from './synchronizer-shared-config.i
 
 export const SynchronizerRequestSharedConfig: ISynchronizerRequestSharedConfig = {
   fetch,
-  timeoutOnFailure: 3000,
+  timeoutOnFailure: 30000,
   maxRequestTimeout: 150000,
 }
