@@ -19,17 +19,17 @@ export class SchedulerService implements OnApplicationBootstrap {
     private readonly options: SynchronizerApplicationModuleOptions
   ) {}
 
-  startSynchronizeAllProductsWithDb() {
-    const synchronizeAllProductsWithDb = async () => {
-      this.#logger.info('Called synchronizeAllProductsWithDb()')
+  startWriteAllProductsToMarketplace() {
+    const writeAllProductsToMarketplace = async () => {
+      this.#logger.info('Called writeAllProductsToMarketplace()')
 
-      await this.synchronizerService.synchronizeProductsWithDb()
-      setTimeout(synchronizeAllProductsWithDb, 30000)
+      await this.synchronizerService.writeAllProductsToMarketplace()
+      setTimeout(writeAllProductsToMarketplace, 60000)
 
-      this.#logger.info('Finished synchronizeAllProductsWithDb()')
+      this.#logger.info('Finished writeAllProductsToMarketplace()')
     }
 
-    synchronizeAllProductsWithDb()
+    writeAllProductsToMarketplace()
   }
 
   startSynchronizeProductsWithMarketplace() {
@@ -61,6 +61,8 @@ export class SchedulerService implements OnApplicationBootstrap {
   async onApplicationBootstrap() {
     if (this.options.job === Job.SYNCHRONIZER) {
       this.startSynchronizeProductsWithMarketplace()
+    } else if (this.options.job === Job.WRITER) {
+      this.startWriteAllProductsToMarketplace()
     }
   }
 }

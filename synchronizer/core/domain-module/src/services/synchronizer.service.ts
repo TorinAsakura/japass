@@ -1,28 +1,29 @@
 /* eslint-disable no-await-in-loop */
 
-import { Logger }                              from '@atls/logger'
-import { Injectable }                          from '@nestjs/common'
-import { Inject }                              from '@nestjs/common'
+import { Logger }                                        from '@atls/logger'
+import { Injectable }                                    from '@nestjs/common'
+import { Inject }                                        from '@nestjs/common'
 
-import assert                                  from 'assert'
-import pLimit                                  from 'p-limit'
-import { v4 as uuid }                          from 'uuid'
+import assert                                            from 'assert'
+import pLimit                                            from 'p-limit'
+import { v4 as uuid }                                    from 'uuid'
 
-import { Product }                             from '../aggregates'
-import { AlreadyInProgressSingletonException } from '../exceptions'
-import { MARKETPLACE_SERVICE_TOKEN }           from '../ports'
-import { MarketplacePort }                     from '../ports'
-import { SUPPLIER_SERVICE_TOKEN }              from '../ports'
-import { SupplierPort }                        from '../ports'
-import { ProductsRepository }                  from '../repositories'
-import { PRODUCTS_REPOSITORY_TOKEN }           from '../repositories'
-import { OPERATIONS_REPOSITORY_TOKEN }         from '../repositories'
-import { REWRITE_ENFORCER_REPOSITORY_TOKEN }   from '../repositories'
-import { RewriteEnforcerRepository }           from '../repositories'
-import { OperationsRepository }                from '../repositories'
-import { applyProductPriceFormula }            from '../formulas'
-import { applyMinPriceFormula }                from '../formulas'
-import { applyMinOrderFormula }                from '../formulas'
+import { Product }                                       from '../aggregates'
+import { AlreadyInProgressSingletonException }           from '../exceptions'
+import { MARKETPLACE_SERVICE_TOKEN }                     from '../ports'
+import { MarketplaceProduct } from '../ports'
+import { MarketplacePort }                               from '../ports'
+import { SUPPLIER_SERVICE_TOKEN }                        from '../ports'
+import { SupplierPort }                                  from '../ports'
+import { ProductsRepository }                            from '../repositories'
+import { PRODUCTS_REPOSITORY_TOKEN }                     from '../repositories'
+import { OPERATIONS_REPOSITORY_TOKEN }                   from '../repositories'
+import { REWRITE_ENFORCER_REPOSITORY_TOKEN }             from '../repositories'
+import { RewriteEnforcerRepository }                     from '../repositories'
+import { OperationsRepository }                          from '../repositories'
+import { applyProductPriceFormula }                      from '../formulas'
+import { applyMinPriceFormula }                          from '../formulas'
+import { applyMinOrderFormula }                          from '../formulas'
 
 @Injectable()
 export class SynchronizerService {
@@ -30,7 +31,7 @@ export class SynchronizerService {
 
   #isInProgress: boolean = false
 
-  #rewriteEnforcerFlag: boolean = true
+  #rewriteEnforcerFlag: boolean = false
 
   constructor(
     @Inject(MARKETPLACE_SERVICE_TOKEN)
@@ -77,6 +78,27 @@ export class SynchronizerService {
     }
 
     await iterate(0)
+  }
+
+  private productToMarketplaceProduct(product: Product): MarketplaceProduct {
+    return {
+      name: product.name,
+      width: product.width,
+      height: product.height,
+      weight: product.weight,
+      length: product.depth,
+      previewImage: product.imagePreview,
+      pictures: product.images,
+      price: product.price,
+      manufacturerCountries: [product.country],
+      barcodes: product.barcodes || [],
+      articleNumber: product.articleNumber,
+      category: product.category,
+      vendor: product.brand,
+      vendorCode: product.articleNumber,
+      description: product.description,
+      remains: product.remains,
+    }
   }
 
   async synchronizeProductsWithDb() {
@@ -216,6 +238,20 @@ export class SynchronizerService {
     })
   }
 
+  async writeAllProductsToMarketplace() {
+    assert.ok(!this.#isInProgress, new AlreadyInProgressSingletonException())
+
+    this.#logger.info('Called writeAllProductsToMarketplace()')
+
+    await this.mapAllProductBatches(async (products) => {
+      await this.marketplaceService.createProducts({
+        products: products.map(this.productToMarketplaceProduct),
+      })
+    })
+
+    this.#logger.info('Called writeAllProductsToMarketplace()')
+  }
+
   async writeProducts() {
     assert.ok(!this.#isInProgress, new AlreadyInProgressSingletonException())
 
@@ -271,7 +307,7 @@ export class SynchronizerService {
       resolve = _resolve
     })
     const $productsObservable = this.supplierService.getAllProducts({
-      detailed: false,
+      detailed: true,
       startFrom: await getStartFrom(),
     })
 
