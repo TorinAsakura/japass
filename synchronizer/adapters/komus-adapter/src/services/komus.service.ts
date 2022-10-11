@@ -110,14 +110,13 @@ export class KomusService implements SupplierPort {
         for (const product of response.content) {
           const productAggregate = await this.transformProduct(product)
 
-          if (productAggregate.price >= 150) {
-            if (options?.detailed) {
-              subscriber.next(await this.getDetailedProduct(productAggregate.articleNumber))
-              const lastOperation = await this.operationsRepository.findLastCompleted()
-              await lastOperation!.update(Date.now(), page)
-              await this.operationsRepository.save(lastOperation!)
-            } else subscriber.next(productAggregate)
-          }
+          const lastOperation = await this.operationsRepository.findLastCompleted()
+          await lastOperation!.update(Date.now(), page)
+          await this.operationsRepository.save(lastOperation!)
+
+          if (options?.detailed) {
+            subscriber.next(await this.getDetailedProduct(productAggregate.articleNumber))
+          } else subscriber.next(productAggregate)
         }
 
         if (response.next && typeof response.next === 'number') {

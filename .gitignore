@@ -47,5 +47,8 @@ dist/
 .idea
 *.iml
 
-# env
+# Env
 .env
+
+# Dumps
+*.sql

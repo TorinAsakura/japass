@@ -19,37 +19,50 @@ export class SchedulerService implements OnApplicationBootstrap {
     private readonly options: SynchronizerApplicationModuleOptions
   ) {}
 
-  startSynchronizeAllProductsWithDb() {
-    const synchronizeAllProductsWithDb = async () => {
-      this.#logger.info('Called synchronizeAllProductsWithDb()')
+  startWriteAllProductsToMarketplace() {
+    const writeAllProductsToMarketplace = async () => {
+      this.#logger.info('Called writeAllProductsToMarketplace()')
 
-      await this.synchronizerService.synchronizeProductsWithDb()
-      setTimeout(synchronizeAllProductsWithDb, 30000)
+      await this.synchronizerService.writeAllProductsToMarketplace()
+      setTimeout(writeAllProductsToMarketplace, 60000)
 
-      this.#logger.info('Finished synchronizeAllProductsWithDb()')
+      this.#logger.info('Finished writeAllProductsToMarketplace()')
     }
 
-    synchronizeAllProductsWithDb()
+    writeAllProductsToMarketplace()
   }
 
-  startSynchronizeAllProductsWithMarketplace() {
+  startSynchronizeProductsWithMarketplace() {
     const synchronizeAllProductsWithMarketplace = async () => {
-      this.#logger.info('Called synchronizeAllProductsWithMarketplace()')
+      this.#logger.info('Called startSynchronizeProductsWithMarketplace()')
 
       await this.synchronizerService.synchronizeProductsWithMarketplace()
       setTimeout(synchronizeAllProductsWithMarketplace, 90000)
 
-      this.#logger.info('Finished synchronizeAllProductsWithMarketplace()')
+      this.#logger.info('Finished startSynchronizeProductsWithMarketplace()')
     }
 
     synchronizeAllProductsWithMarketplace()
   }
 
+  startSynchronizeStocksWithMarketplace() {
+    const synchronizeStocksWithMarketplace = async () => {
+      this.#logger.info('Called synchronizeStocksWithMarketplace()')
+
+      await this.synchronizerService.synchronizeStocksWithMarketplace()
+      setTimeout(synchronizeStocksWithMarketplace, 10000)
+
+      this.#logger.info('Finished synchronizeStocksWithMarketplace()')
+    }
+
+    synchronizeStocksWithMarketplace()
+  }
+
   async onApplicationBootstrap() {
-    if (this.options.job === Job.WRITER) {
-      this.startSynchronizeAllProductsWithMarketplace()
-    } else if (this.options.job === Job.SYNCHRONIZER) {
-      this.startSynchronizeAllProductsWithDb()
+    if (this.options.job === Job.SYNCHRONIZER) {
+      this.startSynchronizeProductsWithMarketplace()
+    } else if (this.options.job === Job.WRITER) {
+      this.startWriteAllProductsToMarketplace()
     }
   }
 }
