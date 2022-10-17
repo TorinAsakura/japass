@@ -19,6 +19,7 @@ import { RequestService }              from '@synchronizer/request-shared-module
 
 import { KOMUS_ADAPTER_CONFIG_TOKEN }  from '../config'
 import { IKomusAdapterConfig }         from '../config'
+import { ServerMessage }               from '../enums'
 import { TokenNotProvidedException }   from '../exceptions'
 
 @Injectable()
@@ -107,21 +108,25 @@ export class KomusService implements SupplierPort {
         const requestUrl = this.buildUrl('/api/elements', { format: 'json', count: 250, page })
         const response = await this.requestService.makeRequest(requestUrl)
 
-        for (const product of response.content) {
-          const productAggregate = await this.transformProduct(product)
+        if (response.content) {
+          for (const product of response.content) {
+            const productAggregate = await this.transformProduct(product)
 
-          const lastOperation = await this.operationsRepository.findLastCompleted()
-          await lastOperation!.update(Date.now(), page)
-          await this.operationsRepository.save(lastOperation!)
+            const lastOperation = await this.operationsRepository.findLastCompleted()
+            await lastOperation!.update(Date.now(), page)
+            await this.operationsRepository.save(lastOperation!)
 
-          if (options?.detailed) {
-            subscriber.next(await this.getDetailedProduct(productAggregate.articleNumber))
-          } else subscriber.next(productAggregate)
-        }
+            if (options?.detailed) {
+              subscriber.next(await this.getDetailedProduct(productAggregate.articleNumber))
+            } else subscriber.next(productAggregate)
+          }
 
-        if (response.next && typeof response.next === 'number') {
-          fetchPage(response.next)
-        } else {
+          if (response.next && typeof response.next === 'number') {
+            fetchPage(response.next)
+          } else {
+            subscriber.complete()
+          }
+        } else if (response?.message === ServerMessage.PRODUCT_NOT_FOUND) {
           subscriber.complete()
         }
       }

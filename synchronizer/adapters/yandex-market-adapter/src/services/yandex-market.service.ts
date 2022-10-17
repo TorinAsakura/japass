@@ -65,16 +65,20 @@ export class YandexMarketService implements MarketplacePort {
             }
           ))
 
-        subscriber.next(
-          response.result.offerMappingEntries.map(({ offer, ...position }) => ({
-            articleNumber: offer.shopSku,
-            ...position,
-          }))
-        )
+        if (response.result?.offerMappingEntries) {
+          subscriber.next(
+            response.result.offerMappingEntries.map(({ offer, ...position }) => ({
+              articleNumber: offer.shopSku,
+              ...position,
+            }))
+          )
 
-        if (response.result.paging.nextPageToken) {
-          fetchPage(response.result.paging.nextPageToken)
-        } else subscriber.complete()
+          if (response.result.paging.nextPageToken) {
+            fetchPage(response.result.paging.nextPageToken)
+          } else subscriber.complete()
+        } else {
+          subscriber.complete()
+        }
       }
 
       fetchPage()
