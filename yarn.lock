@@ -1719,6 +1719,69 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shared/cqrs-adapter-module@workspace:0.0.1, @shared/cqrs-adapter-module@workspace:shared/cqrs-adapter":
+  version: 0.0.0-use.local
+  resolution: "@shared/cqrs-adapter-module@workspace:shared/cqrs-adapter"
+  dependencies:
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@types/uuid": ^8.3.1
+    rxjs: 7.4.0
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+    "@nestjs/cqrs": ^8.0.0
+  languageName: unknown
+  linkType: soft
+
+"@shared/request-module@workspace:0.0.1, @shared/request-module@workspace:shared/utils/request-module":
+  version: 0.0.0-use.local
+  resolution: "@shared/request-module@workspace:shared/utils/request-module"
+  dependencies:
+    "@atls/logger": ^0.0.1
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/testing": ^8.1.1
+    "@types/node": ^16.11.10
+    node-fetch: ^2
+    rxjs: ^7.4.0
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+  languageName: unknown
+  linkType: soft
+
+"@shared/typeorm-adapter-module@workspace:0.0.1, @shared/typeorm-adapter-module@workspace:shared/adapters/typeorm-adapter":
+  version: 0.0.0-use.local
+  resolution: "@shared/typeorm-adapter-module@workspace:shared/adapters/typeorm-adapter"
+  dependencies:
+    "@atls/typeorm-logger": ^0.0.1
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/microservices": ^8.1.1
+    "@nestjs/testing": ^8.1.1
+    "@nestjs/typeorm": 8.0.2
+    "@types/node": ^16.11.10
+    "@types/pg": ^8.6.1
+    mqtt: ^4.2.8
+    pg: ^8.7.3
+    pg-mem: ^2.0.1
+    rxjs: ^7.4.0
+    ts-node: ^10.3.0
+    typeorm: ^0.2.37
+    uuid: ^8.3.2
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/microservices": ^8.0.4
+    "@nestjs/typeorm": ^8.0.1
+    typeorm: ^0.2.34
+  languageName: unknown
+  linkType: soft
+
 "@sinclair/typebox@npm:^0.24.1":
   version: 0.24.28
   resolution: "@sinclair/typebox@npm:0.24.28"
@@ -1757,6 +1820,220 @@ __metadata:
   checksum: 5d80554b84ed15747fcfa6e488ef794c610c08152a53ebac0f270574ad938cdf39a02de7dfba4e9d9c33a790368f819945d315ee6dae360b220c29e092cba930
   languageName: node
   linkType: hard
+
+"@supplier/application-module@workspace:0.0.1, @supplier/application-module@workspace:supplier/core/application-module":
+  version: 0.0.0-use.local
+  resolution: "@supplier/application-module@workspace:supplier/core/application-module"
+  dependencies:
+    "@atls/logger": ^0.0.1
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/testing": ^8.1.1
+    "@supplier/domain-module": "workspace:0.0.1"
+    "@types/node": ^16.11.10
+    rxjs: 7.4.0
+    uuid: ^8.3.2
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+    "@nestjs/cqrs": ^8.0.0
+  languageName: unknown
+  linkType: soft
+
+"@supplier/domain-module@workspace:0.0.1, @supplier/domain-module@workspace:supplier/core/domain-module":
+  version: 0.0.0-use.local
+  resolution: "@supplier/domain-module@workspace:supplier/core/domain-module"
+  dependencies:
+    "@atls/logger": ^0.0.1
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/testing": ^8.1.1
+    "@types/node": ^16.11.10
+    p-limit: ^4.0.0
+    rxjs: 7.4.0
+    uuid: ^8.3.2
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+    "@nestjs/cqrs": ^8.0.0
+  languageName: unknown
+  linkType: soft
+
+"@supplier/infrastructure-module@workspace:0.0.1, @supplier/infrastructure-module@workspace:supplier/core/infrastructure-module":
+  version: 0.0.0-use.local
+  resolution: "@supplier/infrastructure-module@workspace:supplier/core/infrastructure-module"
+  dependencies:
+    "@atls/logger": ^0.0.1
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/microservices": ^8.1.1
+    "@nestjs/testing": ^8.1.1
+    "@nestjs/typeorm": 8.0.2
+    "@shared/typeorm-adapter-module": "workspace:0.0.1"
+    "@supplier/domain-module": "workspace:0.0.1"
+    "@types/pg": ^8.6.1
+    mqtt: ^4.2.8
+    pg: ^8.7.3
+    pg-mem: ^2.0.1
+    rxjs: 7.4.0
+    ts-node: ^10.3.0
+    typeorm: ^0.2.37
+    uuid: ^8.3.2
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+    "@nestjs/cqrs": ^8.0.0
+  languageName: unknown
+  linkType: soft
+
+"@supplier/jobs-adapter-module@workspace:0.0.1, @supplier/jobs-adapter-module@workspace:supplier/adapters/jobs-adapter":
+  version: 0.0.0-use.local
+  resolution: "@supplier/jobs-adapter-module@workspace:supplier/adapters/jobs-adapter"
+  dependencies:
+    "@atls/logger": ^0.0.1
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/microservices": ^8.1.1
+    "@nestjs/testing": ^8.1.1
+    "@nestjs/typeorm": 8.0.2
+    "@shared/typeorm-adapter-module": "workspace:0.0.1"
+    "@supplier/application-module": "workspace:0.0.1"
+    "@supplier/domain-module": "workspace:0.0.1"
+    "@types/pg": ^8.6.1
+    mqtt: ^4.2.8
+    pg: ^8.7.3
+    pg-mem: ^2.0.1
+    rxjs: 7.4.0
+    ts-node: ^10.3.0
+    typeorm: ^0.2.37
+    uuid: ^8.3.2
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+    "@nestjs/cqrs": ^8.0.0
+  languageName: unknown
+  linkType: soft
+
+"@supplier/komus-adapter-module@workspace:0.0.1, @supplier/komus-adapter-module@workspace:supplier/adapters/komus-adapter":
+  version: 0.0.0-use.local
+  resolution: "@supplier/komus-adapter-module@workspace:supplier/adapters/komus-adapter"
+  dependencies:
+    "@atls/logger": ^0.0.1
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/testing": ^8.1.1
+    "@shared/request-module": "workspace:0.0.1"
+    "@supplier/domain-module": "workspace:0.0.1"
+    "@types/node": ^16.11.10
+    rxjs: 7.4.0
+    uuid: ^8.3.2
+  peerDependencies:
+    "@nestjs/common": ^8.0.4
+    "@nestjs/core": ^8.0.4
+  languageName: unknown
+  linkType: soft
+
+"@supplier/komus-synchronizer-service-entrypoint@workspace:supplier/entrypoints/komus-synchronizer-service-entrypoint":
+  version: 0.0.0-use.local
+  resolution: "@supplier/komus-synchronizer-service-entrypoint@workspace:supplier/entrypoints/komus-synchronizer-service-entrypoint"
+  dependencies:
+    "@atls/grpc-error-status": ^0.0.3
+    "@atls/nestjs-grpc-errors": ^0.0.3
+    "@atls/nestjs-grpc-identity": ^0.0.5
+    "@atls/nestjs-grpc-playground": 0.0.5
+    "@atls/nestjs-logger": ^0.2.37
+    "@atls/nestjs-typeorm-seeding": ^0.0.4
+    "@grpc/grpc-js": ^1.4.1
+    "@grpc/proto-loader": ^0.6.5
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/microservices": ^8.1.1
+    "@nestjs/mongoose": ^9.2.0
+    "@nestjs/platform-express": ^8.1.1
+    "@nestjs/testing": ^8.1.1
+    "@nestjs/typeorm": 8.0.2
+    "@shared/cqrs-adapter-module": "workspace:0.0.1"
+    "@shared/request-module": "workspace:0.0.1"
+    "@shared/typeorm-adapter-module": "workspace:0.0.1"
+    "@supplier/application-module": "workspace:0.0.1"
+    "@supplier/domain-module": "workspace:0.0.1"
+    "@supplier/infrastructure-module": "workspace:0.0.1"
+    "@supplier/jobs-adapter-module": "workspace:0.0.1"
+    "@supplier/komus-adapter-module": "workspace:0.0.1"
+    "@types/faker": ^5.5.9
+    "@types/jsonwebtoken": ^8.5.5
+    "@types/pg": ^8.6.1
+    "@types/uuid": ^8.3.1
+    class-transformer: ^0.4.0
+    class-validator: ^0.13.1
+    faker: ^5.5.3
+    get-port: ^5.1.1
+    jsonwebtoken: ^8.5.1
+    mongodb: ^4.9.0
+    mongoose: ^6.5.3
+    mqtt: ^4.2.8
+    pg: ^8.7.3
+    reflect-metadata: ^0.1.13
+    rxjs: ^7.4.0
+    testcontainers: ^7.18.2
+    typeorm: ^0.2.37
+    uuid: ^8.3.2
+  languageName: unknown
+  linkType: soft
+
+"@supplier/komus-writer-service-entrypoint@workspace:supplier/entrypoints/komus-writer-service-entrypoint":
+  version: 0.0.0-use.local
+  resolution: "@supplier/komus-writer-service-entrypoint@workspace:supplier/entrypoints/komus-writer-service-entrypoint"
+  dependencies:
+    "@atls/grpc-error-status": ^0.0.3
+    "@atls/nestjs-grpc-errors": ^0.0.3
+    "@atls/nestjs-grpc-identity": ^0.0.5
+    "@atls/nestjs-grpc-playground": 0.0.5
+    "@atls/nestjs-logger": ^0.2.37
+    "@atls/nestjs-typeorm-seeding": ^0.0.4
+    "@grpc/grpc-js": ^1.4.1
+    "@grpc/proto-loader": ^0.6.5
+    "@nestjs/common": ^8.1.1
+    "@nestjs/core": ^8.1.1
+    "@nestjs/cqrs": ^8.0.0
+    "@nestjs/microservices": ^8.1.1
+    "@nestjs/mongoose": ^9.2.0
+    "@nestjs/platform-express": ^8.1.1
+    "@nestjs/testing": ^8.1.1
+    "@nestjs/typeorm": 8.0.2
+    "@shared/cqrs-adapter-module": "workspace:0.0.1"
+    "@shared/request-module": "workspace:0.0.1"
+    "@shared/typeorm-adapter-module": "workspace:0.0.1"
+    "@supplier/application-module": "workspace:0.0.1"
+    "@supplier/domain-module": "workspace:0.0.1"
+    "@supplier/infrastructure-module": "workspace:0.0.1"
+    "@supplier/jobs-adapter-module": "workspace:0.0.1"
+    "@supplier/komus-adapter-module": "workspace:0.0.1"
+    "@types/faker": ^5.5.9
+    "@types/jsonwebtoken": ^8.5.5
+    "@types/pg": ^8.6.1
+    "@types/uuid": ^8.3.1
+    class-transformer: ^0.4.0
+    class-validator: ^0.13.1
+    faker: ^5.5.3
+    get-port: ^5.1.1
+    jsonwebtoken: ^8.5.1
+    mongodb: ^4.9.0
+    mongoose: ^6.5.3
+    mqtt: ^4.2.8
+    pg: ^8.7.3
+    reflect-metadata: ^0.1.13
+    rxjs: ^7.4.0
+    testcontainers: ^7.18.2
+    typeorm: ^0.2.37
+    uuid: ^8.3.2
+  languageName: unknown
+  linkType: soft
 
 "@synchronizer/application-module@workspace:0.0.1, @synchronizer/application-module@workspace:synchronizer/core/application-module":
   version: 0.0.0-use.local
