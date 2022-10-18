@@ -1,3 +1,4 @@
 export * from './module'
-export * from './queries'
-export * from './query-handlers'
+export * from './commands'
+export * from './command-handlers'
+export * from './events'

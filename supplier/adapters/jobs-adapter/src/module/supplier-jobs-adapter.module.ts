@@ -31,6 +31,20 @@ export class SupplierJobsAdapterModule {
           useClass: OperationsRepository,
         },
       ],
+      exports: [
+        {
+          provide: ACTIVE_JOB_TOKEN,
+          useValue: options.activeJob,
+        },
+        {
+          provide: REWRITE_ENFORCER_REPOSITORY_TOKEN,
+          useClass: RewriteEnforcerRepository,
+        },
+        {
+          provide: OPERATIONS_REPOSITORY_TOKEN,
+          useClass: OperationsRepository,
+        },
+      ],
     }
   }
 }

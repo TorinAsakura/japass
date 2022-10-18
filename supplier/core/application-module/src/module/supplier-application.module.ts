@@ -1,7 +1,8 @@
-import * as queryHandlers from '../query-handlers'
+import * as commandHandlers from '../command-handlers'
+import * as eventHandlers   from '../event-handlers'
 
-import { DynamicModule }  from '@nestjs/common'
-import { Module }         from '@nestjs/common'
+import { DynamicModule }    from '@nestjs/common'
+import { Module }           from '@nestjs/common'
 
 @Module({})
 export class SupplierApplicationModule {
@@ -9,7 +10,7 @@ export class SupplierApplicationModule {
     return {
       global: true,
       module: SupplierApplicationModule,
-      providers: [...Object.values(queryHandlers)],
+      providers: [...Object.values(commandHandlers), ...Object.values(eventHandlers)],
     }
   }
 }
