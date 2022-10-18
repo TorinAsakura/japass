@@ -1,6 +1,7 @@
 import { Logger }                     from '@atls/logger'
 import { CommandHandler }             from '@nestjs/cqrs'
 import { ICommandHandler }            from '@nestjs/cqrs'
+import { EventBus }                   from '@nestjs/cqrs'
 
 import pLimit                         from 'p-limit'
 import { Observable }                 from 'rxjs'
@@ -12,6 +13,7 @@ import { InjectProductsRepository }   from '@marketplace/domain-module'
 import { ProductsRepository }         from '@marketplace/domain-module'
 
 import { SynchronizeProductsCommand } from '../commands'
+import { SynchronizedProductsEvent }  from '../events'
 
 @CommandHandler(SynchronizeProductsCommand)
 export class SynchronizeProductsCommandHandler
@@ -23,7 +25,8 @@ export class SynchronizeProductsCommandHandler
     @InjectMarketplaceService()
     private readonly marketplaceService: MarketplaceService,
     @InjectProductsRepository()
-    private readonly productsRepository: ProductsRepository
+    private readonly productsRepository: ProductsRepository,
+    private readonly eventBus: EventBus
   ) {}
 
   async execute() {
@@ -51,6 +54,7 @@ export class SynchronizeProductsCommandHandler
       },
       complete: () => {
         this.#logger.info(`Done`)
+        this.eventBus.publish(new SynchronizedProductsEvent())
       },
     })
   }
