@@ -17,6 +17,7 @@ import { ProductsRepository }         from '@supplier/domain-module'
 
 import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
 import { IKomusAdapterConfig }        from '../config'
+import { ServerMessage }              from '../enums'
 import { TokenNotProvidedException }  from '../exceptions'
 
 @Injectable()
@@ -86,17 +87,21 @@ export class KomusSupplierService extends SupplierService {
         })
         const response = await this.requestService.makeRequest(requestUrl)
 
-        for (const product of response.content) {
-          const productAggregate = this.toAggregate(product)
+        if (response.content) {
+          for (const product of response.content) {
+            const productAggregate = this.toAggregate(product)
 
-          if (options?.detailed) {
-            subscriber.next([await this.getDetailedProduct(productAggregate.articleNumber)])
-          } else subscriber.next([productAggregate])
-        }
+            if (options?.detailed) {
+              subscriber.next([await this.getDetailedProduct(productAggregate.articleNumber)])
+            } else subscriber.next([productAggregate])
+          }
 
-        if (response.next && typeof response.next === 'number') {
-          fetchPage(response.next)
-        } else {
+          if (response.next && typeof response.next === 'number') {
+            fetchPage(response.next)
+          } else {
+            subscriber.complete()
+          }
+        } else if (response?.message === ServerMessage.PRODUCT_NOT_FOUND) {
           subscriber.complete()
         }
       }
