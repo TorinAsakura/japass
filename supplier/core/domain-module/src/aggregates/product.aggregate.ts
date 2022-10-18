@@ -172,7 +172,7 @@ export class Product extends AggregateRoot {
   }
 
   priceWithExtraCharge() {
-    return (this.price * 1.9 + 105) * 1.09 * 1.15
+    return (this.minPrice() * 1.9 + 105) * 1.09 * 1.15
   }
 
   static create(
