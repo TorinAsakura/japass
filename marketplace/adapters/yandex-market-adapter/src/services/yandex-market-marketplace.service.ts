@@ -82,7 +82,7 @@ export class YandexMarketMarketplaceService extends MarketplaceService {
       },
       urls: [aggregate.imagePreview],
       pictures: aggregate.images,
-      price: aggregate.price,
+      price: aggregate.priceWithExtraCharge(),
       manufacturerCountries: [aggregate.country],
       barcodes: aggregate.barcodes || [],
       shopSku: aggregate.articleNumber,
@@ -182,7 +182,7 @@ export class YandexMarketMarketplaceService extends MarketplaceService {
               id: Number(product.articleNumber),
               price: {
                 currencyId: 'RUR',
-                value: Number(product.price),
+                value: Number(product.priceWithExtraCharge()),
               },
             })),
           }),

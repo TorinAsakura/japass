@@ -38,11 +38,51 @@ export class SynchronizeProductsCommandHandler
         const execute = async () => {
           const limit = pLimit(1)
 
+          const byPriceChanged = (product: Product) =>
+            product!.priceWithExtraCharge() !==
+            products.find((p) => p.articleNumber !== product!.articleNumber)?.price
+
           // @ts-ignore
           const productsFromDb: Array<Product> = await Promise.all(
             products.map((product) =>
               limit(() => this.productsRepository.findByArticleNumber(product.articleNumber)))
-          ).then((result) => result.filter((position) => Boolean(position)))
+          ).then((result) =>
+            (result.filter((product) => Boolean(product)) as Array<Product>)
+              .filter(byPriceChanged)
+              .map((product) => {
+                if (product.remains < 10) {
+                  return undefined
+                }
+
+                if (product.price < 150) {
+                  return Product.create(
+                    product.id,
+                    `${product.name} (${product.minForOrder()} шт.)`,
+                    product.price * product.minForOrder(),
+                    product.remains,
+                    product.articleNumber,
+                    product.code,
+                    product.description,
+                    product.brand,
+                    product.UOM,
+                    product.nds,
+                    product.country,
+                    product.imagePreview,
+                    product.images,
+                    product.width,
+                    product.height,
+                    product.depth,
+                    product.weight,
+                    product.volume,
+                    product.barcodes,
+                    product.category
+                  )
+                }
+
+                return product
+              })
+              .filter((product) => Boolean(product)) as Array<Product>
+          )
 
           if (productsFromDb.length > 0) {
             await this.marketplaceService.updateStocks({ products: productsFromDb })

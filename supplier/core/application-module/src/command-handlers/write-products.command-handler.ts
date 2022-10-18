@@ -11,8 +11,6 @@ import { ProductsRepository }              from '@supplier/domain-module'
 import { InjectProductsRepository }        from '@supplier/domain-module'
 import { InjectSupplierService }           from '@supplier/domain-module'
 import { SupplierService }                 from '@supplier/domain-module'
-import { ActiveJob }                       from '@supplier/jobs-adapter-module'
-import { InjectActiveJob }                 from '@supplier/jobs-adapter-module'
 import { InjectOperationsRepository }      from '@supplier/jobs-adapter-module'
 import { InjectRewriteEnforcerRepository } from '@supplier/jobs-adapter-module'
 import { Operation }                       from '@supplier/jobs-adapter-module'
@@ -30,8 +28,6 @@ export class WriteProductsCommandHandler implements ICommandHandler<WriteProduct
   #rewriteEnforcerFlag: boolean = false
 
   constructor(
-    @InjectActiveJob()
-    private readonly activeJob: ActiveJob,
     @InjectOperationsRepository()
     private readonly operationsRepository: OperationsRepository,
     @InjectRewriteEnforcerRepository()
@@ -86,28 +82,22 @@ export class WriteProductsCommandHandler implements ICommandHandler<WriteProduct
   }
 
   async execute() {
-    if (this.activeJob === ActiveJob.WRITE_PRODUCTS) {
-      this.#logger.info(`Job: ${this.activeJob}`)
+    const productsObservable$ = await this.supplierService.getAllProducts({
+      detailed: true,
+      startFrom: await this.getStartFrom(),
+    })
 
-      const productsObservable$ = await this.supplierService.getAllProducts({
-        detailed: true,
-        startFrom: await this.getStartFrom(),
-      })
+    productsObservable$.subscribe({
+      next: async (products) => {
+        for (const product of products) {
+          await this.productsRepository.save(product)
+        }
+      },
+      complete: () => {
+        this.#logger.info('Completed writing all products')
 
-      productsObservable$.subscribe({
-        next: async (products) => {
-          for (const product of products) {
-            product.update(product.priceWithExtraCharge(), product.remains)
-
-            await this.productsRepository.save(product)
-          }
-        },
-        complete: () => {
-          this.#logger.info('Completed writing all products')
-
-          this.eventBus.publish(new WroteProductsEvent())
-        },
-      })
-    }
+        this.eventBus.publish(new WroteProductsEvent())
+      },
+    })
   }
 }
