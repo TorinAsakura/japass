@@ -3,7 +3,7 @@ import { Injectable }               from '@nestjs/common'
 import { OnApplicationBootstrap }   from '@nestjs/common'
 import { CommandBus }               from '@nestjs/cqrs'
 
-import { CreateProductsCommand }    from '@marketplace/application-module'
+import { WriteProductsCommand }     from '@marketplace/application-module'
 import { InjectProductsRepository } from '@marketplace/domain-module'
 import { ProductsRepository }       from '@marketplace/domain-module'
 
@@ -30,11 +30,7 @@ export class WriteProductsJob implements OnApplicationBootstrap {
     if (this.activeJob === ActiveJob.WRITE_PRODUCTS) {
       this.#logger.info(`Job: ${this.activeJob}`)
 
-      await this.productsRepository.mapAllProducts(async (products, page) => {
-        await this.commandBus.execute(new CreateProductsCommand(products))
-      })
-
-      this.#logger.info('Done')
+      await this.commandBus.execute(new WriteProductsCommand())
     }
   }
 }
