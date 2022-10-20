@@ -31,7 +31,7 @@ export class SynchronizerService {
 
   #isInProgress: boolean = false
 
-  #rewriteEnforcerFlag: boolean = true
+  #rewriteEnforcerFlag: boolean = false
 
   constructor(
     @Inject(MARKETPLACE_SERVICE_TOKEN)
@@ -313,7 +313,7 @@ export class SynchronizerService {
 
     $productsObservable.subscribe({
       next: async (product) => {
-        await product.update(applyProductPriceFormula(product.price), product.remains)
+        await product.update(product.price, product.remains)
 
         await this.productsRepository.save(product)
       },
