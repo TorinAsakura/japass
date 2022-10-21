@@ -30,8 +30,7 @@ export class SynchronizeProductsCommandHandler
   ) {}
 
   async execute() {
-    const productsObservable$: Observable<Array<Product>> =
-      await this.marketplaceService.getProducts()
+    const productsObservable$: Observable<Array<Product>> = this.marketplaceService.getProducts()
 
     productsObservable$.subscribe({
       next: (products) => {
