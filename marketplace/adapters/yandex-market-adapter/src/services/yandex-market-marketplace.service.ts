@@ -124,7 +124,7 @@ export class YandexMarketMarketplaceService extends MarketplaceService {
           )
         }
 
-        if (response.result.paging.nextPageToken) {
+        if (response.result?.paging.nextPageToken) {
           fetchPage(response.result.paging.nextPageToken)
         } else subscriber.complete()
       }
