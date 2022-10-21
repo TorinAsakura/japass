@@ -49,12 +49,60 @@ services:
     depends_on:
       - db
 
-  write-all-products-job:
+  komus-writer:
     image: node:16
     working_dir: /workspace
     volumes:
       - ./:/workspace
-    entrypoint: yarn workspace @synchronizer/write-all-products-job dev
+    entrypoint: yarn workspace @supplier/komus-writer-service-entrypoint dev
+    networks:
+      - default
+    restart: always
+    environment:
+      - DB_HOST=db
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  komus-synchronizer:
+    image: node:16
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    entrypoint: yarn workspace @supplier/komus-synchronizer-service-entrypoint dev
+    networks:
+      - default
+    restart: always
+    environment:
+      - DB_HOST=db
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  yandex-market-writer:
+    image: node:16
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    entrypoint: yarn workspace @marketplace/yandex-market-writer-service-entrypoint dev
+    networks:
+      - default
+    restart: always
+    environment:
+      - DB_HOST=db
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  yandex-market-synchronizer:
+    image: node:16
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    entrypoint: yarn workspace @marketplace/yandex-market-synchronizer-service-entrypoint dev
     networks:
       - default
     restart: always

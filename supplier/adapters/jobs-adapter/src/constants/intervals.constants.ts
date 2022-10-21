@@ -1,0 +1,10 @@
+import assert from 'assert'
+
+export const SYNCHRONIZE_PRODUCTS_JOB_INTERVAL = Number(
+  process.env.SUPPLIER_SYNCHRONIZE_PRODUCTS_JOB_INTERVAL_MS
+)
+
+assert.ok(
+  !Number.isNaN(SYNCHRONIZE_PRODUCTS_JOB_INTERVAL),
+  `Missing env variable 'SUPPLIER_SYNCHRONIZE_PRODUCTS_JOB_INTERVAL_MS'`
+)
