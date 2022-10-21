@@ -38,56 +38,30 @@ export class SynchronizeProductsCommandHandler
         const execute = async () => {
           const limit = pLimit(1)
 
-          const byPriceChanged = (product: Product) =>
-            product!.priceWithExtraCharge() !==
-            products.find((p) => p.articleNumber !== product!.articleNumber)?.price
-
-          // @ts-ignore
-          const productsFromDb: Array<Product> = await Promise.all(
+          const productsFromDb: Array<Product | undefined> = await Promise.all(
             products.map((product) =>
               limit(() => this.productsRepository.findByArticleNumber(product.articleNumber)))
-          ).then(
-            (result) =>
-              (result.filter((product) => Boolean(product)) as Array<Product>)
-                .filter(byPriceChanged)
-                .map((product) => {
-                  if (product.remains < 10) {
-                    return undefined
-                  }
-
-                  if (product.price < 150) {
-                    return Product.create(
-                      product.id,
-                      `${product.name} (${product.minForOrder()} шт.)`,
-                      product.price * product.minForOrder(),
-                      product.remains,
-                      product.articleNumber,
-                      product.code,
-                      product.description,
-                      product.brand,
-                      product.UOM,
-                      product.nds,
-                      product.country,
-                      product.imagePreview,
-                      product.images,
-                      product.width,
-                      product.height,
-                      product.depth,
-                      product.weight,
-                      product.volume,
-                      product.barcodes,
-                      product.category
-                    )
-                  }
-
-                  return product
-                })
-                .filter((product) => Boolean(product)) as Array<Product>
           )
 
+          const finalBatch: Array<Product> = []
+
+          for (const product of productsFromDb) {
+            if (product && product.remains > 10) {
+              if (product.price < 150) {
+                finalBatch.push(
+                  new Product({
+                    ...product.properties,
+                    name: `${product.name} (${product.minForOrder()} шт.)`,
+                    price: product.price * product.minForOrder(),
+                  })
+                )
+              } else finalBatch.push(product)
+            }
+          }
+
           if (productsFromDb.length > 0) {
-            await this.marketplaceService.updateStocks({ products: productsFromDb })
-            await this.marketplaceService.updatePrices({ products: productsFromDb })
+            await this.marketplaceService.updateStocks({ products: finalBatch })
+            await this.marketplaceService.updatePrices({ products: finalBatch })
           }
         }
 
