@@ -52,6 +52,38 @@ export class Product extends AggregateRoot {
     super()
   }
 
+  private get extraChargeMultiplier() {
+    const value = Number(process.env.EXTRA_CHARGE_MULTIPLIER)
+
+    assert.ok(!Number.isNaN(value), `Missing env variable 'EXTRA_CHARGE_MULTIPLIER'`)
+
+    return value
+  }
+
+  private get consumablesExtraCharge() {
+    const value = Number(process.env.CONSUMABLES_EXTRA_CHARGE)
+
+    assert.ok(!Number.isNaN(value), `Missing env variable 'CONSUMABLES_EXTRA_CHARGE'`)
+
+    return value
+  }
+
+  private get orderProcessingMultiplier() {
+    const value = Number(process.env.ORDER_PROCESSING_MULTIPLIER)
+
+    assert.ok(!Number.isNaN(value), `Missing env variable 'ORDER_PROCESSING_MULTIPLIER'`)
+
+    return value
+  }
+
+  private get categoryMultiplier() {
+    const value = Number(process.env.CATEGORY_MULTIPLIER)
+
+    assert.ok(!Number.isNaN(value), `Missing env variable 'CATEGORY_MULTIPLIER'`)
+
+    return value
+  }
+
   get id() {
     return this.#id
   }
@@ -172,7 +204,11 @@ export class Product extends AggregateRoot {
   }
 
   priceWithExtraCharge() {
-    return (this.minPrice() * 1.9 + 105) * 1.09 * 1.15
+    return (
+      (this.minPrice() * this.extraChargeMultiplier + this.consumablesExtraCharge) *
+      this.orderProcessingMultiplier *
+      this.categoryMultiplier
+    )
   }
 
   static create(

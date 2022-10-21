@@ -2,7 +2,6 @@ import { AggregateRoot }         from '@nestjs/cqrs'
 
 import assert                    from 'assert'
 
-import { MIN_PRICE }             from '../constants'
 import { ProductCreated }        from '../events'
 import { ProductUpdated }        from '../events'
 import { IdEmptyValueException } from '../exceptions'
@@ -155,24 +154,6 @@ export class Product extends AggregateRoot {
       barcodes: this.#barcodes,
       category: this.#category,
     }
-  }
-
-  minForOrder() {
-    if (this.price < MIN_PRICE) return Math.ceil(MIN_PRICE / this.price)
-
-    return 1
-  }
-
-  minPrice() {
-    const minForOrder = this.minForOrder()
-
-    if (minForOrder > 1) return this.price * minForOrder
-
-    return this.price
-  }
-
-  priceWithExtraCharge() {
-    return (this.minPrice() * 1.9 + 105) * 1.09 * 1.15
   }
 
   static create(

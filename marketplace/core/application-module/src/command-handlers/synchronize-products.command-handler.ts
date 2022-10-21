@@ -46,42 +46,43 @@ export class SynchronizeProductsCommandHandler
           const productsFromDb: Array<Product> = await Promise.all(
             products.map((product) =>
               limit(() => this.productsRepository.findByArticleNumber(product.articleNumber)))
-          ).then((result) =>
-            (result.filter((product) => Boolean(product)) as Array<Product>)
-              .filter(byPriceChanged)
-              .map((product) => {
-                if (product.remains < 10) {
-                  return undefined
-                }
+          ).then(
+            (result) =>
+              (result.filter((product) => Boolean(product)) as Array<Product>)
+                .filter(byPriceChanged)
+                .map((product) => {
+                  if (product.remains < 10) {
+                    return undefined
+                  }
 
-                if (product.price < 150) {
-                  return Product.create(
-                    product.id,
-                    `${product.name} (${product.minForOrder()} шт.)`,
-                    product.price * product.minForOrder(),
-                    product.remains,
-                    product.articleNumber,
-                    product.code,
-                    product.description,
-                    product.brand,
-                    product.UOM,
-                    product.nds,
-                    product.country,
-                    product.imagePreview,
-                    product.images,
-                    product.width,
-                    product.height,
-                    product.depth,
-                    product.weight,
-                    product.volume,
-                    product.barcodes,
-                    product.category
-                  )
-                }
+                  if (product.price < 150) {
+                    return Product.create(
+                      product.id,
+                      `${product.name} (${product.minForOrder()} шт.)`,
+                      product.price * product.minForOrder(),
+                      product.remains,
+                      product.articleNumber,
+                      product.code,
+                      product.description,
+                      product.brand,
+                      product.UOM,
+                      product.nds,
+                      product.country,
+                      product.imagePreview,
+                      product.images,
+                      product.width,
+                      product.height,
+                      product.depth,
+                      product.weight,
+                      product.volume,
+                      product.barcodes,
+                      product.category
+                    )
+                  }
 
-                return product
-              })
-              .filter((product) => Boolean(product)) as Array<Product>
+                  return product
+                })
+                .filter((product) => Boolean(product)) as Array<Product>
           )
 
           if (productsFromDb.length > 0) {
