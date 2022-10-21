@@ -2,6 +2,7 @@ import * as jobs                               from '../jobs'
 
 import { DynamicModule }                       from '@nestjs/common'
 import { Module }                              from '@nestjs/common'
+import { ScheduleModule }                      from '@nestjs/schedule'
 
 import { ACTIVE_JOB_TOKEN }                    from '../constants'
 import { MarketplaceJobsAdapterModuleOptions } from './marketplace-jobs-adapter-module.interfaces'
@@ -12,6 +13,7 @@ export class MarketplaceJobsAdapterModule {
     return {
       global: true,
       module: MarketplaceJobsAdapterModule,
+      imports: [ScheduleModule.forRoot()],
       providers: [
         ...Object.values(jobs),
         {

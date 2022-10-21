@@ -1,7 +1,8 @@
 import { Logger }                   from '@atls/logger'
 import { Injectable }               from '@nestjs/common'
-import { OnApplicationBootstrap }   from '@nestjs/common'
 import { CommandBus }               from '@nestjs/cqrs'
+import { CronExpression }           from '@nestjs/schedule'
+import { Cron }                     from '@nestjs/schedule'
 
 import { WriteProductsCommand }     from '@marketplace/application-module'
 import { InjectProductsRepository } from '@marketplace/domain-module'
@@ -11,7 +12,7 @@ import { InjectActiveJob }          from '../decorators'
 import { ActiveJob }                from '../enums'
 
 @Injectable()
-export class WriteProductsJob implements OnApplicationBootstrap {
+export class WriteProductsJob {
   #logger: Logger = new Logger(WriteProductsJob.name)
 
   constructor(
@@ -22,10 +23,7 @@ export class WriteProductsJob implements OnApplicationBootstrap {
     private readonly commandBus: CommandBus
   ) {}
 
-  onApplicationBootstrap() {
-    this.writeProducts()
-  }
-
+  @Cron(CronExpression.EVERY_DAY_AT_6AM)
   async writeProducts() {
     if (this.activeJob === ActiveJob.WRITE_PRODUCTS) {
       this.#logger.info(`Job: ${this.activeJob}`)
