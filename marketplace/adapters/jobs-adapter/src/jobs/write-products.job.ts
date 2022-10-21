@@ -1,17 +1,18 @@
-import { Logger }                   from '@atls/logger'
-import { Injectable }               from '@nestjs/common'
-import { OnApplicationBootstrap }   from '@nestjs/common'
-import { CommandBus }               from '@nestjs/cqrs'
+import { Logger }                             from '@atls/logger'
+import { Injectable }                         from '@nestjs/common'
+import { CommandBus }                         from '@nestjs/cqrs'
+import { Cron }                               from '@nestjs/schedule'
 
-import { WriteProductsCommand }     from '@marketplace/application-module'
-import { InjectProductsRepository } from '@marketplace/domain-module'
-import { ProductsRepository }       from '@marketplace/domain-module'
+import { WriteProductsCommand }               from '@marketplace/application-module'
+import { InjectProductsRepository }           from '@marketplace/domain-module'
+import { ProductsRepository }                 from '@marketplace/domain-module'
 
-import { InjectActiveJob }          from '../decorators'
-import { ActiveJob }                from '../enums'
+import { WRITE_PRODUCTS_JOB_CRON_EXPRESSION } from '../constants'
+import { InjectActiveJob }                    from '../decorators'
+import { ActiveJob }                          from '../enums'
 
 @Injectable()
-export class WriteProductsJob implements OnApplicationBootstrap {
+export class WriteProductsJob {
   #logger: Logger = new Logger(WriteProductsJob.name)
 
   constructor(
@@ -22,10 +23,7 @@ export class WriteProductsJob implements OnApplicationBootstrap {
     private readonly commandBus: CommandBus
   ) {}
 
-  onApplicationBootstrap() {
-    this.writeProducts()
-  }
-
+  @Cron(WRITE_PRODUCTS_JOB_CRON_EXPRESSION!)
   async writeProducts() {
     if (this.activeJob === ActiveJob.WRITE_PRODUCTS) {
       this.#logger.info(`Job: ${this.activeJob}`)

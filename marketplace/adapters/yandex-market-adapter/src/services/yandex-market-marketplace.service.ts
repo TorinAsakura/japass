@@ -58,7 +58,7 @@ export class YandexMarketMarketplaceService extends MarketplaceService {
       product.vendor,
       product.UOM,
       product.nds,
-      product.manufacturerCountries && product.manufacturerCountries[0],
+      product.manufacturerCountries ? product.manufacturerCountries[0] : [],
       product.previewImage,
       product.pictures,
       product.weightDimensions?.width,
