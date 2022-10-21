@@ -73,28 +73,7 @@ export class ProductsRepositoryImpl extends ProductsRepository {
   }
 
   private toDomain(entity: ProductEntity): Product {
-    return Product.create(
-      entity.id,
-      entity.name,
-      entity.price,
-      entity.remains,
-      entity.articleNumber,
-      entity.code,
-      entity.description,
-      entity.brand,
-      entity.UOM,
-      entity.nds,
-      entity.country,
-      entity.imagePreview,
-      entity.images,
-      entity.width,
-      entity.height,
-      entity.depth,
-      entity.weight,
-      entity.volume,
-      entity.barcodes,
-      entity.category
-    )
+    return new Product({ ...entity })
   }
 
   private async toPersistence(data: Product): Promise<ProductEntity> {

@@ -7,6 +7,29 @@ import { ProductCreated }        from '../events'
 import { ProductUpdated }        from '../events'
 import { IdEmptyValueException } from '../exceptions'
 
+export interface ProductOptions {
+  id: string
+  name: string
+  price: number
+  remains: number
+  articleNumber: string
+  code: string
+  description: string
+  brand: string
+  UOM: string
+  nds: number
+  country: string
+  imagePreview: string
+  images: Array<string>
+  width: number
+  height: number
+  depth: number
+  weight: number
+  volume: number
+  barcodes: Array<string>
+  category: string
+}
+
 export class Product extends AggregateRoot {
   #id!: string
 
@@ -48,8 +71,31 @@ export class Product extends AggregateRoot {
 
   #category!: string
 
-  protected constructor() {
+  constructor(options?: ProductOptions) {
     super()
+
+    if (options) {
+      this.#id = options.id
+      this.#name = options.name
+      this.#price = options.price
+      this.#remains = options.remains
+      this.#articleNumber = options.articleNumber
+      this.#code = options.code
+      this.#description = options.description
+      this.#brand = options.brand
+      this.#UOM = options.UOM
+      this.#nds = options.nds
+      this.#country = options.country
+      this.#imagePreview = options.imagePreview
+      this.#images = options.images || []
+      this.#width = options.width
+      this.#height = options.height
+      this.#depth = options.depth
+      this.#weight = options.weight
+      this.#volume = options.volume
+      this.#barcodes = options.barcodes || []
+      this.#category = options.category
+    }
   }
 
   private get extraChargeMultiplier() {
