@@ -2066,6 +2066,7 @@ __metadata:
     "@supplier/domain-module": "workspace:0.0.1"
     "@supplier/jobs-adapter-module": "workspace:0.0.1"
     "@types/node": ^16.11.10
+    p-limit: ^4.0.0
     rxjs: 7.4.0
     uuid: ^8.3.2
   peerDependencies:

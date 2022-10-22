@@ -151,15 +151,16 @@ export class YandexMarketMarketplaceService extends MarketplaceService {
     }
 
     await this.#limit(() =>
-      this.requestService
-        .makeRequest(this.buildUrl('/campaigns/{campaignId}/offer-mapping-entries/updates'), {
+      this.requestService.makeRequest(
+        this.buildUrl('/campaigns/{campaignId}/offer-mapping-entries/updates'),
+        {
           method: 'POST',
           headers: this.buildHeaders(),
           body: JSON.stringify({
             offerMappingEntries: products,
           }),
-        })
-        .then((res) => this.#logger.info(res)))
+        }
+      ))
 
     this.#logger.info('Finished createProducts()')
   }
