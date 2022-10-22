@@ -32,10 +32,13 @@ export class SynchronizeProductsCommandHandler
   async execute() {
     const productsObservable$: Observable<Array<Product>> = this.marketplaceService.getProducts()
 
+    const commonLimit = pLimit(2)
+    let completed = false
+
     productsObservable$.subscribe({
       next: (products) => {
         const execute = async () => {
-          const limit = pLimit(1)
+          const limit = pLimit(2)
 
           const productsFromDb: Array<Product | undefined> = await Promise.all(
             products.map((product) =>
@@ -43,11 +46,12 @@ export class SynchronizeProductsCommandHandler
           )
 
           const finalBatch: Array<Product> = []
+          const createProductsBatch: Array<Product> = []
 
           for (const product of productsFromDb) {
             if (product && product.remains > 10) {
               if (product.price < 150) {
-                finalBatch.push(
+                createProductsBatch.push(
                   new Product({
                     ...product.properties,
                     name: `${product.name} (${product.minForOrder()} шт.)`,
@@ -58,17 +62,28 @@ export class SynchronizeProductsCommandHandler
             }
           }
 
-          if (productsFromDb.length > 0) {
+          if (createProductsBatch.length > 0) {
+            await this.marketplaceService.createProducts({ products: createProductsBatch })
+            await this.marketplaceService.updateStocks({ products: createProductsBatch })
+            await this.marketplaceService.updatePrices({ products: createProductsBatch })
+          }
+
+          if (finalBatch.length > 0) {
             await this.marketplaceService.updateStocks({ products: finalBatch })
             await this.marketplaceService.updatePrices({ products: finalBatch })
           }
         }
 
-        execute()
+        commonLimit(execute).then(() => {
+          this.#logger.info(`Operations left: ${commonLimit.pendingCount}`)
+          if (completed && commonLimit.pendingCount === 0) {
+            this.eventBus.publish(new SynchronizedProductsEvent())
+          }
+        })
       },
       complete: () => {
-        this.#logger.info(`Done`)
-        this.eventBus.publish(new SynchronizedProductsEvent())
+        this.#logger.info(`Fetched all products`)
+        completed = true
       },
     })
   }
