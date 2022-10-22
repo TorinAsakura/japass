@@ -9008,6 +9008,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/nestjs__core", null],\
             ["@types/nestjs__cqrs", null],\
             ["@types/node", "npm:16.11.56"],\
+            ["p-limit", "npm:4.0.0"],\
             ["rxjs", "npm:7.4.0"],\
             ["uuid", "npm:8.3.2"]\
           ],\
@@ -9036,6 +9037,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/nestjs__core", null],\
             ["@types/nestjs__cqrs", null],\
             ["@types/node", "npm:16.11.56"],\
+            ["p-limit", "npm:4.0.0"],\
             ["rxjs", "npm:7.4.0"],\
             ["uuid", "npm:8.3.2"]\
           ],\
@@ -9064,6 +9066,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/nestjs__core", null],\
             ["@types/nestjs__cqrs", null],\
             ["@types/node", "npm:16.11.56"],\
+            ["p-limit", "npm:4.0.0"],\
             ["rxjs", "npm:7.4.0"],\
             ["uuid", "npm:8.3.2"]\
           ],\
@@ -9092,6 +9095,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/nestjs__core", null],\
             ["@types/nestjs__cqrs", null],\
             ["@types/node", "npm:16.11.56"],\
+            ["p-limit", "npm:4.0.0"],\
             ["rxjs", "npm:7.4.0"],\
             ["uuid", "npm:8.3.2"]\
           ],\
@@ -9117,6 +9121,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@supplier/domain-module", "virtual:b57e0e56138f7bf4e4680212dc2106d7fca31e9e27ba3b8f96986dac507d0e9e02d26e7f744ed7da3babcf1dd7babb6cc71600b339aa7706d7b273edf399d504#workspace:supplier/core/domain-module"],\
             ["@supplier/jobs-adapter-module", "virtual:b57e0e56138f7bf4e4680212dc2106d7fca31e9e27ba3b8f96986dac507d0e9e02d26e7f744ed7da3babcf1dd7babb6cc71600b339aa7706d7b273edf399d504#workspace:supplier/adapters/jobs-adapter"],\
             ["@types/node", "npm:16.11.56"],\
+            ["p-limit", "npm:4.0.0"],\
             ["rxjs", "npm:7.4.0"],\
             ["uuid", "npm:8.3.2"]\
           ],\

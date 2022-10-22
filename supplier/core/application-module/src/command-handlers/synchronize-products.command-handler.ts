@@ -5,6 +5,8 @@ import { CommandHandler }             from '@nestjs/cqrs'
 import { ICommandHandler }            from '@nestjs/cqrs'
 import { EventBus }                   from '@nestjs/cqrs'
 
+import pLimit                         from 'p-limit'
+
 import { InjectProductsRepository }   from '@supplier/domain-module'
 import { InjectSupplierService }      from '@supplier/domain-module'
 import { ProductsRepository }         from '@supplier/domain-module'
@@ -28,34 +30,46 @@ export class SynchronizeProductsCommandHandler
   ) {}
 
   async execute() {
+    const commonLimit = pLimit(2)
+    let completed = false
+
     const productsObservable$ = await this.supplierService.getAllProducts({
       detailed: false,
       startFrom: 0,
     })
 
     await productsObservable$.subscribe({
-      next: async (products) => {
-        for (const product of products) {
-          const retrievedProduct = await this.productsRepository.findByArticleNumber(
-            product.articleNumber
-          )
+      next: (products) => {
+        const execute = async () => {
+          for (const product of products) {
+            const retrievedProduct = await this.productsRepository.findByArticleNumber(
+              product.articleNumber
+            )
 
-          if (!retrievedProduct) {
-            return
-          }
+            if (!retrievedProduct) {
+              return
+            }
 
-          this.#logger.info(`Synchronizing product ${product.articleNumber} with db`)
+            this.#logger.info(`Synchronizing product ${product.articleNumber} with db`)
 
-          if (product.country) {
-            this.#logger.info(`Updating product ${product.articleNumber}`)
-            await this.productsRepository.save(retrievedProduct)
+            if (product.country) {
+              this.#logger.info(`Updating product ${product.articleNumber}`)
+              await this.productsRepository.save(retrievedProduct)
+            }
           }
         }
+
+        commonLimit(execute).then(() => {
+          this.#logger.info(`Operations left: ${commonLimit.pendingCount}`)
+
+          if (completed && commonLimit.pendingCount === 0) {
+            this.eventBus.publish(new SynchronizedProductsEvent())
+          }
+        })
       },
       complete: () => {
-        this.#logger.info(`Completed synchronizing all products`)
-
-        this.eventBus.publish(new SynchronizedProductsEvent())
+        this.#logger.info(`Fetched all products`)
+        completed = true
       },
     })
   }
