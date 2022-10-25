@@ -62,7 +62,8 @@ export class SynchronizeProductsCommandHandler
         commonLimit(execute).then(() => {
           this.#logger.info(`Operations left: ${commonLimit.pendingCount}`)
 
-          if (completed && commonLimit.pendingCount === 0) {
+          if (completed && commonLimit.activeCount === 0) {
+            this.#logger.info('No active operations')
             this.eventBus.publish(new SynchronizedProductsEvent())
           }
         })
