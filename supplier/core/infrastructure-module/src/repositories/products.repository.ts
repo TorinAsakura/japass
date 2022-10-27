@@ -51,10 +51,14 @@ export class ProductsRepositoryImpl extends ProductsRepository {
     return entity ? this.toDomain(entity) : undefined
   }
 
-  async findByArticleNumber(articleNumber: string): Promise<Product | undefined> {
-    const entity = await this.repository.findOne({ articleNumber })
+  async findByArticleNumber(articleNumber: string): Promise<Array<Product>> {
+    const entities = await this.repository.find({ articleNumber })
 
-    return entity ? this.toDomain(entity) : undefined
+    return (entities || []).map(this.toDomain)
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.repository.delete(id)
   }
 
   private toDomain(entity: ProductEntity): Product {
