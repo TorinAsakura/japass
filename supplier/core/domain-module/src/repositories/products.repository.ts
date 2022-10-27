@@ -15,5 +15,7 @@ export abstract class ProductsRepository {
 
   abstract findById(id: string): Promise<Product | undefined>
 
-  abstract findByArticleNumber(articleNumber: string): Promise<Product | undefined>
+  abstract findByArticleNumber(articleNumber: string): Promise<Array<Product>>
+
+  abstract remove(id: string): Promise<void>
 }

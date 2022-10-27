@@ -2162,8 +2162,10 @@ __metadata:
     "@nestjs/core": ^8.1.1
     "@nestjs/testing": ^8.1.1
     "@shared/request-module": "workspace:0.0.1"
+    "@supplier/application-module": "workspace:0.0.1"
     "@supplier/domain-module": "workspace:0.0.1"
     "@types/node": ^16.11.10
+    p-limit: ^4.0.0
     rxjs: 7.4.0
     uuid: ^8.3.2
   peerDependencies:

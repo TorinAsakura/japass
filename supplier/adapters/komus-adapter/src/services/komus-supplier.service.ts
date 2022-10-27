@@ -5,10 +5,12 @@ import { Injectable }                 from '@nestjs/common'
 import { Inject }                     from '@nestjs/common'
 
 import assert                         from 'assert'
+import { LimitFunction }              from 'p-limit'
 import { Observable }                 from 'rxjs'
 import { v4 as uuid }                 from 'uuid'
 
 import { RequestService }             from '@shared/request-module'
+import { InjectCommonLimit }          from '@supplier/application-module'
 import { Product }                    from '@supplier/domain-module'
 import { SupplierService }            from '@supplier/domain-module'
 import { GetAllProductsOptions }      from '@supplier/domain-module'
@@ -29,7 +31,9 @@ export class KomusSupplierService extends SupplierService {
     private readonly komusConfig: IKomusAdapterConfig,
     private readonly requestService: RequestService,
     @InjectProductsRepository()
-    private readonly productsRepository: ProductsRepository
+    private readonly productsRepository: ProductsRepository,
+    @InjectCommonLimit()
+    private readonly commonLimit: LimitFunction
   ) {
     super()
   }
@@ -60,7 +64,7 @@ export class KomusSupplierService extends SupplierService {
       Number(product.nds),
       product.countryName,
       `${this.komusConfig.url}${product.images}`,
-      (product.listImages || []).map((image) => `${this.komusConfig.url}${product.images}`),
+      (product.listImages || []).map((image) => `${this.komusConfig.url}${image}`),
       Number(product.width),
       Number(product.height),
       Number(product.depth),
@@ -96,8 +100,8 @@ export class KomusSupplierService extends SupplierService {
             } else subscriber.next([productAggregate])
           }
 
-          if (response.next && typeof response.next === 'number') {
-            fetchPage(response.next)
+          if (response.next && !Number.isNaN(response.next)) {
+            this.commonLimit(() => fetchPage(Number(response.next)))
           } else {
             subscriber.complete()
           }
