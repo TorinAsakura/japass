@@ -5,6 +5,7 @@
   "license": "BSD-3-Clause",
   "main": "src/index.ts",
   "dependencies": {
+    "date-fns": "^2.29.3",
     "mqtt": "^4.2.8",
     "rxjs": "7.4.0",
     "uuid": "^8.3.2"

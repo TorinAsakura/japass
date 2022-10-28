@@ -27,6 +27,7 @@ export interface ProductOptions {
   volume: number
   barcodes: Array<string>
   category: string
+  updatedAt: Date
 }
 
 export class Product extends AggregateRoot {
@@ -70,6 +71,8 @@ export class Product extends AggregateRoot {
 
   #category!: string
 
+  #updatedAt!: Date
+
   constructor(options?: ProductOptions) {
     super()
 
@@ -94,6 +97,7 @@ export class Product extends AggregateRoot {
       this.#volume = options.volume
       this.#barcodes = options.barcodes || []
       this.#category = options.category
+      this.#updatedAt = options.updatedAt
     }
   }
 
@@ -177,6 +181,10 @@ export class Product extends AggregateRoot {
     return this.#category
   }
 
+  get updatedAt() {
+    return this.#updatedAt
+  }
+
   get properties() {
     return {
       id: this.#id,
@@ -199,6 +207,7 @@ export class Product extends AggregateRoot {
       volume: this.#volume,
       barcodes: this.#barcodes,
       category: this.#category,
+      updatedAt: this.#updatedAt,
     }
   }
 
@@ -222,7 +231,8 @@ export class Product extends AggregateRoot {
     weight: number,
     volume: number,
     barcodes: Array<string>,
-    category: string
+    category: string,
+    updatedAt: Date
   ) {
     assert.ok(id, new IdEmptyValueException())
 
@@ -249,7 +259,8 @@ export class Product extends AggregateRoot {
         weight,
         volume,
         barcodes,
-        category
+        category,
+        updatedAt
       )
     )
 
@@ -277,10 +288,11 @@ export class Product extends AggregateRoot {
     this.#volume = event.volume
     this.#barcodes = event.barcodes || []
     this.#category = event.category
+    this.#updatedAt = event.updatedAt
   }
 
-  update(price: number, remains: number) {
-    this.apply(new ProductUpdated(price, remains))
+  update(price: number, remains: number, updatedAt: Date) {
+    this.apply(new ProductUpdated(price, remains, updatedAt))
 
     return this
   }
@@ -288,5 +300,6 @@ export class Product extends AggregateRoot {
   protected onProductUpdated(event: ProductUpdated) {
     this.#price = event.price
     this.#remains = event.remains
+    this.#updatedAt = event.updatedAt
   }
 }

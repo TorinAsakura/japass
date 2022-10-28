@@ -19,6 +19,7 @@ export class ProductCreated {
     public readonly weight: number,
     public readonly volume: number,
     public readonly barcodes: Array<string>,
-    public readonly category: string
+    public readonly category: string,
+    public readonly updatedAt: Date
   ) {}
 }

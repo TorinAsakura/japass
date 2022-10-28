@@ -74,7 +74,7 @@ export class SynchronizeProductsCommandHandler
             } else [dbProduct] = retrievedProducts
 
             this.#logger.info(`Updating product ${product.articleNumber}`)
-            dbProduct.update(product.price, product.remains)
+            dbProduct.update(product.price, product.remains, new Date())
             await this.productsRepository.save(dbProduct)
           }
         }

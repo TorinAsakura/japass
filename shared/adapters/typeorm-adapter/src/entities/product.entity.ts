@@ -63,4 +63,7 @@ export class ProductEntity {
 
   @Column({ nullable: true })
   category!: string
+
+  @Column({ nullable: true })
+  updatedAt!: Date
 }

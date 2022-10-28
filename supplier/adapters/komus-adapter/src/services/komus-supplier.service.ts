@@ -71,7 +71,8 @@ export class KomusSupplierService extends SupplierService {
       Number(product.weight),
       Number(product.volume),
       (product.barcodes || []).map((b) => b.Value),
-      product.tradeGroup
+      product.tradeGroup,
+      new Date()
     )
   }
 
