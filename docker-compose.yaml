@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   yarn:
-    image: node:16
+    image: node:16.13
     working_dir: /workspace
     volumes:
       - ./:/workspace
@@ -19,7 +19,7 @@ services:
       - ./.data/dump.sql:/docker-entrypoint-initdb.d/dump.sql
 
   komus-writer:
-    image: node:16
+    image: node:16.13
     working_dir: /workspace
     volumes:
       - ./:/workspace
@@ -34,7 +34,7 @@ services:
       - db
 
   komus-synchronizer:
-    image: node:16
+    image: node:16.13
     working_dir: /workspace
     volumes:
       - ./:/workspace
@@ -49,7 +49,7 @@ services:
       - db
 
   yandex-market-writer:
-    image: node:16
+    image: node:16.13
     working_dir: /workspace
     volumes:
       - ./:/workspace
@@ -64,7 +64,7 @@ services:
       - db
 
   yandex-market-synchronizer:
-    image: node:16
+    image: node:16.13
     working_dir: /workspace
     volumes:
       - ./:/workspace

@@ -2,6 +2,7 @@ import { Module }                       from '@nestjs/common'
 
 import { CqrsAdapterModule }            from '@shared/cqrs-adapter-module'
 import { SharedRequestModule }          from '@shared/request-module'
+import { ScheduleAdapterModule }        from '@shared/schedule-adapter-module'
 import { TypeormAdapterModule }         from '@shared/typeorm-adapter-module'
 import { SupplierApplicationModule }    from '@supplier/application-module'
 import { SupplierInfrastructureModule } from '@supplier/infrastructure-module'
@@ -12,6 +13,7 @@ import { KomusAdapterModule }           from '@supplier/komus-adapter-module'
 @Module({
   imports: [
     CqrsAdapterModule.register(),
+    ScheduleAdapterModule.register(),
     TypeormAdapterModule.register(),
     SupplierInfrastructureModule.register(),
     KomusAdapterModule.register(),

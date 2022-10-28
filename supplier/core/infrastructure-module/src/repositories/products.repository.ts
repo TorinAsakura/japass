@@ -1,12 +1,14 @@
-import { Injectable }         from '@nestjs/common'
-import { EventBus }           from '@nestjs/cqrs'
-import { InjectRepository }   from '@nestjs/typeorm'
+import { Injectable }             from '@nestjs/common'
+import { EventBus }               from '@nestjs/cqrs'
+import { InjectRepository }       from '@nestjs/typeorm'
 
-import { Repository }         from 'typeorm'
+import subDays                    from 'date-fns/subDays'
+import { Repository }             from 'typeorm'
 
-import { ProductEntity }      from '@shared/typeorm-adapter-module'
-import { Product }            from '@supplier/domain-module'
-import { ProductsRepository } from '@supplier/domain-module'
+import { ProductEntity }          from '@shared/typeorm-adapter-module'
+import { Product }                from '@supplier/domain-module'
+import { ProductsRepository }     from '@supplier/domain-module'
+import { MapAllProductsCallback } from '@supplier/domain-module'
 
 @Injectable()
 export class ProductsRepositoryImpl extends ProductsRepository {
@@ -57,8 +59,31 @@ export class ProductsRepositoryImpl extends ProductsRepository {
     return (entities || []).map(this.toDomain)
   }
 
+  async findStale(): Promise<Array<Product>> {
+    const entities = await this.repository
+      .createQueryBuilder('product')
+      .where('product.updatedAt < :limit', { limit: subDays(new Date(), 1) })
+      .getMany()
+
+    return (entities || []).map(this.toDomain)
+  }
+
   async remove(id: string): Promise<void> {
     await this.repository.delete(id)
+  }
+
+  async mapAllProducts(cb: MapAllProductsCallback): Promise<void> {
+    const iterate = async (page) => {
+      const result = await this.findAll(50, page)
+
+      await cb(result.products, page)
+
+      if (result.hasNextPage) {
+        iterate(page + 1)
+      }
+    }
+
+    await iterate(0)
   }
 
   private toDomain(entity: ProductEntity): Product {

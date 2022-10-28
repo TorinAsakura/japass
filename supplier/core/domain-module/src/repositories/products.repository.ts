@@ -5,6 +5,11 @@ import { Product } from '../aggregates'
 export const PRODUCTS_REPOSITORY_TOKEN = 'PRODUCTS_REPOSITORY_TOKEN'
 export const InjectProductsRepository = () => Inject(PRODUCTS_REPOSITORY_TOKEN)
 
+export type MapAllProductsCallback = (
+  products: Array<Product>,
+  page: number
+) => Promise<void> | void
+
 export abstract class ProductsRepository {
   abstract save(aggregate: Product): Promise<void>
 
@@ -17,5 +22,9 @@ export abstract class ProductsRepository {
 
   abstract findByArticleNumber(articleNumber: string): Promise<Array<Product>>
 
+  abstract findStale(): Promise<Array<Product>>
+
   abstract remove(id: string): Promise<void>
+
+  abstract mapAllProducts(cb: MapAllProductsCallback): Promise<void>
 }
