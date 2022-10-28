@@ -1403,6 +1403,7 @@ __metadata:
     "@nestjs/typeorm": 8.0.2
     "@shared/cqrs-adapter-module": "workspace:0.0.1"
     "@shared/request-module": "workspace:0.0.1"
+    "@shared/schedule-adapter-module": "workspace:0.0.1"
     "@shared/typeorm-adapter-module": "workspace:0.0.1"
     "@types/faker": ^5.5.9
     "@types/jsonwebtoken": ^8.5.5
@@ -1452,6 +1453,7 @@ __metadata:
     "@nestjs/typeorm": 8.0.2
     "@shared/cqrs-adapter-module": "workspace:0.0.1"
     "@shared/request-module": "workspace:0.0.1"
+    "@shared/schedule-adapter-module": "workspace:0.0.1"
     "@shared/typeorm-adapter-module": "workspace:0.0.1"
     "@types/faker": ^5.5.9
     "@types/jsonwebtoken": ^8.5.5
