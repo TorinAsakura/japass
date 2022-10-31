@@ -76,6 +76,12 @@ export class KomusSupplierService extends SupplierService {
     )
   }
 
+  private sleep(ms: number) {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms)
+    })
+  }
+
   getAllProducts(options?: GetAllProductsOptions): Observable<Array<Product>> {
     this.#logger.info('Called getAllProducts()')
 
@@ -84,6 +90,8 @@ export class KomusSupplierService extends SupplierService {
     return new Observable<Array<Product>>((subscriber) => {
       const fetchPage = async (page: number) => {
         this.#logger.info(`Fetching page ${page}`)
+
+        await this.sleep(1000)
 
         const requestUrl = this.buildUrl('/api/elements', {
           format: 'json',
@@ -119,6 +127,8 @@ export class KomusSupplierService extends SupplierService {
     const requestUrl = this.buildUrl(`/api/elements/${articleNumber}`, {
       format: 'json',
     })
+
+    await this.sleep(1000)
 
     this.#logger.info(`Retrieving ${articleNumber}`)
     const response = await this.requestService.makeRequest(requestUrl)
