@@ -4,6 +4,8 @@ import { CommandBus }                from '@nestjs/cqrs'
 import { Cron }                      from '@nestjs/schedule'
 import { CronExpression }            from '@nestjs/schedule'
 
+import { CleanStaleProductsCommand } from '@supplier/application-module'
+
 import { InjectActiveJob }           from '../decorators'
 import { ActiveJob }                 from '../enums'
 
@@ -20,10 +22,9 @@ export class ProductsCleanerJob {
   @Cron(CronExpression.EVERY_DAY_AT_6AM)
   async cleanProducts() {
     if (this.activeJob === ActiveJob.SYNCHRONIZE_PRODUCTS) {
-      // TODO start when IP unbanned
-      // this.#logger.info('Started cleaning stale products')
-      //
-      // await this.commandBus.execute(new CleanStaleProductsCommand())
+      this.#logger.info('Started cleaning stale products')
+
+      await this.commandBus.execute(new CleanStaleProductsCommand())
     }
   }
 }
