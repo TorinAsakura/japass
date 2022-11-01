@@ -19,7 +19,7 @@ import { KomusAdapterModule }           from '@supplier/komus-adapter-module'
     KomusAdapterModule.register(),
     SharedRequestModule.register(),
     SupplierApplicationModule.register(),
-    SupplierJobsAdapterModule.register({ activeJob: ActiveJob.RENEW_PRODUCTS }),
+    SupplierJobsAdapterModule.register({ activeJob: ActiveJob.WRITE_PRODUCTS }),
   ],
 })
 export class KomusWriterServiceEntrypointModule {}
