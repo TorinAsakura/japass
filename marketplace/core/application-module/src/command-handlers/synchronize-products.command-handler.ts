@@ -40,13 +40,30 @@ export class SynchronizeProductsCommandHandler
         const execute = async () => {
           const limit = pLimit(2)
 
-          const productsFromDb: Array<Product | undefined> = await Promise.all(
-            products.map((product) =>
-              limit(() => this.productsRepository.findByArticleNumber(product.articleNumber)))
-          )
-
           const finalBatch: Array<Product> = []
           const createProductsBatch: Array<Product> = []
+          const removeProductsBatch: Array<Product> = []
+
+          const productsFromDb: Array<Product | undefined> = await Promise.all(
+            products.map((product) =>
+              limit(async () => {
+                const productFromDb = await this.productsRepository.findByArticleNumber(
+                  product.articleNumber
+                )
+
+                if (!productFromDb) {
+                  product.update(product.price, 0)
+                  removeProductsBatch.push(product)
+                }
+
+                return productFromDb
+              }))
+          )
+
+          if (removeProductsBatch.length > 0) {
+            this.#logger.info(`Removing ${removeProductsBatch.length} products`)
+            await this.marketplaceService.updateStocks({ products: removeProductsBatch })
+          }
 
           for (const product of productsFromDb) {
             if (product && product.remains > 10) {

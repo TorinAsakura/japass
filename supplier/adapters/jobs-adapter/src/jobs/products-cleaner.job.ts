@@ -1,11 +1,11 @@
-import { Logger }                    from '@atls/logger'
-import { Injectable }                from '@nestjs/common'
-import { CommandBus }                from '@nestjs/cqrs'
-import { Cron }                      from '@nestjs/schedule'
-import { CronExpression }            from '@nestjs/schedule'
+import { Logger }          from '@atls/logger'
+import { Injectable }      from '@nestjs/common'
+import { CommandBus }      from '@nestjs/cqrs'
+import { Cron }            from '@nestjs/schedule'
+import { CronExpression }  from '@nestjs/schedule'
 
-import { InjectActiveJob }           from '../decorators'
-import { ActiveJob }                 from '../enums'
+import { InjectActiveJob } from '../decorators'
+import { ActiveJob }       from '../enums'
 
 @Injectable()
 export class ProductsCleanerJob {
