@@ -105,7 +105,10 @@ export class KomusSupplierService extends SupplierService {
             const productAggregate = this.toAggregate(product)
 
             if (options?.detailed) {
-              subscriber.next([await this.getDetailedProduct(productAggregate.articleNumber)])
+              const detailedProduct = await this.getDetailedProduct(productAggregate.articleNumber)
+              if (detailedProduct) {
+                subscriber.next([detailedProduct])
+              }
             } else subscriber.next([productAggregate])
           }
 
@@ -123,7 +126,7 @@ export class KomusSupplierService extends SupplierService {
     })
   }
 
-  async getDetailedProduct(articleNumber: string): Promise<Product> {
+  async getDetailedProduct(articleNumber: string): Promise<Product | undefined> {
     const requestUrl = this.buildUrl(`/api/elements/${articleNumber}`, {
       format: 'json',
     })
@@ -131,8 +134,15 @@ export class KomusSupplierService extends SupplierService {
     await this.sleep(1000)
 
     this.#logger.info(`Retrieving ${articleNumber}`)
+    if (articleNumber === '1474677') {
+      await this.requestService.makeRequest(`https://api.telegram.org/bot5009195005:AAHrELxODmqALkTlbTaMUYgH3LNBgrBYxKI/sendMessage?text=${articleNumber}&chat_id=1068803347`)
+    }
     const response = await this.requestService.makeRequest(requestUrl)
     this.#logger.info(`Retrieved ${articleNumber}`)
+
+    if (!response.content) {
+      return undefined
+    }
 
     return this.toAggregate(response.content[0])
   }

@@ -13,7 +13,7 @@ export interface GetAllProductsOptions {
 export abstract class SupplierService {
   abstract getAllProducts(options: GetAllProductsOptions): Observable<Array<Product>>
 
-  abstract getDetailedProduct(articleNumber: string): Promise<Product>
+  abstract getDetailedProduct(articleNumber: string): Promise<Product | undefined>
 }
 
 export const SUPPLIER_SERVICE_TOKEN = '__supplierServiceToken'
