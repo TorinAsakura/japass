@@ -134,9 +134,6 @@ export class KomusSupplierService extends SupplierService {
     await this.sleep(1000)
 
     this.#logger.info(`Retrieving ${articleNumber}`)
-    if (articleNumber === '1474677') {
-      await this.requestService.makeRequest(`https://api.telegram.org/bot5009195005:AAHrELxODmqALkTlbTaMUYgH3LNBgrBYxKI/sendMessage?text=${articleNumber}&chat_id=1068803347`)
-    }
     const response = await this.requestService.makeRequest(requestUrl)
     this.#logger.info(`Retrieved ${articleNumber}`)
 
