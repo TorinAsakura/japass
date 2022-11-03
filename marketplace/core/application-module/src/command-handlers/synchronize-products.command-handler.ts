@@ -76,6 +76,9 @@ export class SynchronizeProductsCommandHandler
                   })
                 )
               } else finalBatch.push(product)
+            } else if (product) {
+              product.update(product.price, 0)
+              finalBatch.push(product)
             }
           }
 
