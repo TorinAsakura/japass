@@ -25,7 +25,7 @@ import { WroteProductsEvent }              from '../events'
 export class WriteProductsCommandHandler implements ICommandHandler<WriteProductsCommand> {
   #logger: Logger = new Logger(WriteProductsCommandHandler.name)
 
-  #rewriteEnforcerFlag: boolean = false
+  #rewriteEnforcerFlag: boolean = true
 
   constructor(
     @InjectOperationsRepository()
