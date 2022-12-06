@@ -21,6 +21,7 @@ import { KOMUS_ADAPTER_CONFIG_TOKEN } from '../config'
 import { IKomusAdapterConfig }        from '../config'
 import { ServerMessage }              from '../enums'
 import { TokenNotProvidedException }  from '../exceptions'
+import { DimensionsMapper }           from '../mappers'
 
 @Injectable()
 export class KomusSupplierService extends SupplierService {
@@ -62,12 +63,12 @@ export class KomusSupplierService extends SupplierService {
       product.brand?.name,
       product.Unit,
       Number(product.nds),
-      product.countryName,
+      product.countryName || 'Россия',
       `${this.komusConfig.url}${product.images}`,
       (product.listImages || []).map((image) => `${this.komusConfig.url}${image}`),
-      Number(product.width),
-      Number(product.height),
-      Number(product.depth),
+      DimensionsMapper.fromMetres(Number(product.width)),
+      DimensionsMapper.fromMetres(Number(product.height)),
+      DimensionsMapper.fromDecimetres(Number(product.depth)),
       Number(product.weight),
       Number(product.volume),
       (product.barcodes || []).map((b) => b.Value),
