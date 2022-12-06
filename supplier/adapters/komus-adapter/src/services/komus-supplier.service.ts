@@ -62,7 +62,7 @@ export class KomusSupplierService extends SupplierService {
       product.brand?.name,
       product.Unit,
       Number(product.nds),
-      product.countryName,
+      product.countryName || 'Россия',
       `${this.komusConfig.url}${product.images}`,
       (product.listImages || []).map((image) => `${this.komusConfig.url}${image}`),
       Number(product.width),
