@@ -1,5 +1,6 @@
 import { Logger }                             from '@atls/logger'
 import { Injectable }                         from '@nestjs/common'
+import { OnApplicationBootstrap }             from '@nestjs/common'
 import { CommandBus }                         from '@nestjs/cqrs'
 import { Cron }                               from '@nestjs/schedule'
 
@@ -12,7 +13,7 @@ import { InjectActiveJob }                    from '../decorators'
 import { ActiveJob }                          from '../enums'
 
 @Injectable()
-export class WriteProductsJob {
+export class WriteProductsJob implements OnApplicationBootstrap {
   #logger: Logger = new Logger(WriteProductsJob.name)
 
   constructor(
@@ -22,6 +23,10 @@ export class WriteProductsJob {
     private readonly productsRepository: ProductsRepository,
     private readonly commandBus: CommandBus
   ) {}
+
+  async onApplicationBootstrap() {
+    this.writeProducts()
+  }
 
   @Cron(WRITE_PRODUCTS_JOB_CRON_EXPRESSION!)
   async writeProducts() {
