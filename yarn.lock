@@ -813,6 +813,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@doctor/legacy-script@workspace:doctor/scripts/legacy":
+  version: 0.0.0-use.local
+  resolution: "@doctor/legacy-script@workspace:doctor/scripts/legacy"
+  dependencies:
+    "@atls/logger": ^0.0.1
+    "@types/node": ^16.11.10
+    node-fetch: 2
+    p-limit: ^4.0.0
+  languageName: unknown
+  linkType: soft
+
 "@emotion/css-prettifier@npm:^1.1.0":
   version: 1.1.0
   resolution: "@emotion/css-prettifier@npm:1.1.0"
@@ -8491,7 +8502,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2, node-fetch@npm:^2.6.1":
+"node-fetch@npm:2, node-fetch@npm:^2, node-fetch@npm:^2.6.1":
   version: 2.6.7
   resolution: "node-fetch@npm:2.6.7"
   dependencies:

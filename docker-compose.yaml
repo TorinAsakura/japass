@@ -75,3 +75,14 @@ services:
       - .env
     depends_on:
       - db
+
+  doctor-legacy:
+    image: node:16.13
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    entrypoint: yarn workspace @doctor/legacy-script dev
+    networks:
+      - default
+    env_file:
+      - .env
