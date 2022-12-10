@@ -51,9 +51,13 @@ export class KomusSupplierService extends SupplierService {
     return `${this.komusConfig.url}${path}${stringifiedParams}`
   }
 
-  private toAggregate(product: any): Product {
+  private async toAggregate(product: any): Promise<Product> {
+    const productFromDb = await this.productsRepository.findByArticleNumber(product.artnumber)
+
+    const productId = productFromDb[0]?.id || uuid()
+
     return Product.create(
-      uuid(),
+      productId,
       product.name,
       Number(product.price),
       Number(product.remains),
@@ -65,7 +69,7 @@ export class KomusSupplierService extends SupplierService {
       Number(product.nds),
       product.countryName || 'Россия',
       `${this.komusConfig.url}${product.images}`,
-      (product.listImages || []).map((image) => `${this.komusConfig.url}${image}`),
+      (product.listImages || []).map((image) => `${this.komusConfig.url}${image.image}`),
       DimensionsMapper.fromMetres(Number(product.width)),
       DimensionsMapper.fromMetres(Number(product.height)),
       DimensionsMapper.fromDecimetres(Number(product.depth)),
@@ -103,7 +107,7 @@ export class KomusSupplierService extends SupplierService {
 
         if (response.content) {
           for (const product of response.content) {
-            const productAggregate = this.toAggregate(product)
+            const productAggregate = await this.toAggregate(product)
 
             if (options?.detailed) {
               const detailedProduct = await this.getDetailedProduct(productAggregate.articleNumber)
