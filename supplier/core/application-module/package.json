@@ -6,6 +6,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "p-limit": "^4.0.0",
+    "p-map": "^5.5.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

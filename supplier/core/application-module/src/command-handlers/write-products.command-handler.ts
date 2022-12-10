@@ -5,6 +5,7 @@ import { CommandHandler }                  from '@nestjs/cqrs'
 import { ICommandHandler }                 from '@nestjs/cqrs'
 import { EventBus }                        from '@nestjs/cqrs'
 
+import pMap                                from 'p-map'
 import { v4 as uuid }                      from 'uuid'
 
 import { ProductsRepository }              from '@supplier/domain-module'
@@ -90,6 +91,16 @@ export class WriteProductsCommandHandler implements ICommandHandler<WriteProduct
     productsObservable$.subscribe({
       next: async (products) => {
         for (const product of products) {
+          const productsFromDb = await this.productsRepository.findByArticleNumber(
+            product.articleNumber
+          )
+
+          if (productsFromDb.length > 1) {
+            const [, ...remove] = productsFromDb
+
+            await pMap(remove, (p) => this.productsRepository.remove(p.id), { concurrency: 2 })
+          }
+
           await this.productsRepository.save(product)
         }
       },

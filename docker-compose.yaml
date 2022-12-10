@@ -15,8 +15,6 @@ services:
       - POSTGRESQL_USER=postgres
     ports:
       - 5432:5432
-    volumes:
-      - ./.data/dump.sql:/docker-entrypoint-initdb.d/dump.sql
 
   komus-writer:
     image: node:16.13
