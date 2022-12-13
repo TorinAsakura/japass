@@ -7,8 +7,8 @@ import { ActiveJob }                       from '@marketplace/jobs-adapter-modul
 import { YandexMarketAdapterModule }       from '@marketplace/yandex-market-adapter-module'
 import { CqrsAdapterModule }               from '@shared/cqrs-adapter-module'
 import { SharedRequestModule }             from '@shared/request-module'
-import { ScheduleAdapterModule }           from '@shared/schedule-adapter-module'
 import { TypeormAdapterModule }            from '@shared/typeorm-adapter-module'
+import { ScheduleAdapterModule }           from '@shared/schedule-adapter-module'
 
 @Module({
   imports: [
